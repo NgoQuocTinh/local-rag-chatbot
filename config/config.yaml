@@ -1,0 +1,186 @@
+# config/config.yaml
+
+# ==================== APPLICATION ====================
+app:
+  name: "RAG Chatbot"
+  version: "2.0.0"
+  environment: "production"  # production | development | testing
+  log_level: "INFO"          # DEBUG | INFO | WARNING | ERROR
+
+# ==================== PATHS ====================
+paths:
+  data_dir: "data"
+  pdf_file: "document.pdf"   # Relative to data_dir
+  db_dir: "chroma_db"
+  log_file: "rag_system.log"
+
+# ==================== PDF PROCESSING ====================
+pdf: 
+  max_file_size_mb: 100      # Max PDF size to process
+  allowed_extensions: 
+    - ".pdf"
+    - ".PDF"
+
+# ==================== TEXT SPLITTING ====================
+chunking:
+  chunk_size:  1000
+  chunk_overlap: 200
+  separators:                 # characters to split on, in order of priority
+    - "\n###\n"
+    - "\n\n"
+    - "\n"
+    - ". "
+    - " "
+    - ""
+  
+  # Advanced chunking strategies
+  strategies:
+    default:
+      chunk_size: 1000
+      overlap: 200
+    detailed:                # Cho docs dài, phức tạp
+      chunk_size: 1500
+      overlap: 300
+    quick:                   # Cho Q&A ngắn
+      chunk_size: 500
+      overlap: 100
+
+# ==================== EMBEDDINGS ====================
+embeddings: 
+  model_name: "all-MiniLM-L6-v2"
+  device: "cuda"              # cpu | cuda | mps (Mac M1/M2)
+  normalize: true
+  
+  # Alternative models
+  alternatives:
+    multilingual:  "intfloat/multilingual-e5-base"
+    vietnamese: "keepitreal/vietnamese-sbert"
+    fast:  "all-MiniLM-L6-v2"
+    accurate: "BAAI/bge-large-en-v1.5"
+
+# ==================== VECTOR DATABASE ====================
+vectordb:
+  type: "chroma"             # chroma | faiss | qdrant
+  collection_name: "documents"
+  distance_metric: "cosine"  # cosine | l2 | ip
+  
+  # ChromaDB specific
+  chroma: 
+    anonymized_telemetry: false
+    allow_reset: true
+  
+  # HNSW index parameters (Fine-tuning search performance)
+  hnsw:
+    space:  "cosine"
+    construction_ef:  100     # Cao hơn = index chất lượng cao hơn, build chậm hơn
+    search_ef: 100           # Cao hơn = search chính xác hơn, chậm hơn
+    M: 16                    # Số connections mỗi node (16-64 là tốt)
+
+# ==================== RETRIEVAL ====================
+retrieval:
+  search_type: "similarity"  # similarity | mmr | similarity_score_threshold
+  k: 3                       # Số documents trả về
+  score_threshold: 0.0       # Min similarity score (0.0-1.0)
+  
+  # MMR (Maximum Marginal Relevance) - Học: Diversity in results
+  mmr:
+    fetch_k: 20              # Lấy 20 candidates
+    lambda_mult: 0.5         # 0=diversity, 1=relevance
+
+# ==================== LLM ====================
+llm:
+  provider: "ollama"         # ollama | openai | anthropic
+  model: "llama3"
+  
+  # Generation parameters
+  temperature: 0.1           # 0=deterministic, 1=creative
+  max_tokens: 512
+  top_p: 0.9
+  top_k: 40
+  repeat_penalty: 1.1
+  
+  # Ollama specific
+  ollama: 
+    base_url: "http://localhost:11434"
+    timeout: 60              # seconds
+  
+  # OpenAI (nếu dùng) - Học: Cloud LLM integration
+  openai:
+    model: "gpt-4"
+    api_key_env: "OPENAI_API_KEY"  # Read from . env
+
+# ==================== PROMPT ====================
+prompt:
+  system_message: |
+    Bạn là trợ lý AI thông minh và chuyên nghiệp của cá nhân tôi.
+    Nhiệm vụ của bạn là trả lời câu hỏi dựa trên tài liệu được cung cấp.
+  
+  rules:
+    - "Chỉ sử dụng thông tin từ ngữ cảnh"
+    - "Nếu không biết, nói 'Tôi không tìm thấy thông tin'"
+    - "Trả lời bằng Tiếng Việt rõ ràng"
+    - "Trích dẫn chính xác nếu có số liệu"
+  
+  template: |
+    {system_message}
+    
+    QUY TẮC: 
+    {rules}
+    
+    NGỮ CẢNH:
+    {context}
+    
+    CÂU HỎI:  {question}
+    
+    TRẢ LỜI: 
+
+# ==================== CHAT ====================
+chat:
+  show_sources: true
+  max_query_length: 500
+  history_enabled: false     # Level 3 sẽ implement
+  max_history:  10
+  
+  # UI messages
+  messages:
+    welcome:  "RAG Chatbot đã sẵn sàng!"
+    exit: "Tạm biệt!"
+    processing: "Đang xử lý..."
+    error: "Đã có lỗi xảy ra"
+
+# ==================== LOGGING ====================
+logging:
+  level: "INFO"              # Override by app.log_level
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  handlers:
+    console:
+      enabled: true
+      level: "INFO"
+    
+    file:
+      enabled: true
+      level: "DEBUG"
+      max_bytes: 10485760    # 10MB
+      backup_count: 5        # Keep 5 old logs
+      
+  # Học: Structured logging for production
+  json_logs: false           # true = machine-readable logs
+
+# ==================== PERFORMANCE ====================
+performance:
+  cache_embeddings: true
+  batch_size: 100            # For bulk ingestion
+  
+  # Học: Rate limiting
+  rate_limit: 
+    enabled: false
+    requests_per_minute: 60
+
+# ==================== MONITORING ====================
+monitoring:
+  enabled: false             # Level 5 sẽ implement
+  metrics:
+    - "query_count"
+    - "response_time"
+    - "retrieval_accuracy"

@@ -21,6 +21,8 @@ venv.bak/
 .env
 .env.local
 .env.*.local
+config.local.yaml
+config.*.local.yaml
 
 # Database
 chroma_db/

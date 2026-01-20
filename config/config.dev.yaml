@@ -1,0 +1,21 @@
+# config/config.dev.yaml
+# Development overrides
+
+app:
+  environment: "development"
+  log_level: "DEBUG"
+
+logging:
+  level: "DEBUG"
+  handlers:
+    console:
+      level: "DEBUG"
+
+llm:
+  temperature: 0.3  # More creative for testing
+
+retrieval:
+  k: 5  # More results for testing
+
+monitoring:
+  enabled: true
