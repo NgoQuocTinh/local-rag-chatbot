@@ -12,8 +12,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_core. output_parsers import StrOutputParser
-from langchain_core. documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.documents import Document
 
 from config.setting import get_settings
 
@@ -135,6 +135,7 @@ def create_rag_chain(vector_db: Chroma, llm: ChatOllama):
         search_type=retrieval_config.search_type,
         search_kwargs={
             "k": retrieval_config.k,
+            "score_threshold": 0.3
         }
     )
     
