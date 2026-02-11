@@ -8,7 +8,7 @@ app:
 
 # ==================== PATHS ====================
 paths:
-  data_dir: "data/documents"      # Changed to support multiple files
+  data_dir: "data/"      # Changed to support multiple files
   db_dir: "chroma_db"
   log_file: "rag_system.log"
   metrics_file: "metrics.json"   # File to store metrics

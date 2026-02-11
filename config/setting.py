@@ -41,6 +41,7 @@ class PathsConfig(BaseModel):
     pdf_file: str = "document.pdf"
     db_dir: str = "chroma_db"
     log_file: str = "rag_system.log"
+    metrics_file: str = "metrics.json"
     
     @property
     def full_pdf_path(self) -> str:
@@ -74,6 +75,7 @@ class EmbeddingsConfig(BaseModel):
     model_name:  str = "all-MiniLM-L6-v2"
     device: str = "cuda"
     normalize: bool = True
+    batch_size: int = 32
     alternatives: Optional[Dict[str, str]] = None
 
 class VectorDBConfig(BaseModel):
@@ -90,11 +92,23 @@ class VectorDBConfig(BaseModel):
     
     hnsw:  HNSWConfig = HNSWConfig()
 
+class MMRConfig(BaseModel):
+    fetch_k: int = 20
+    lambda_mult: float = Field(default=0.5, ge=0.0, le=1.0)
+
+class RerankConfig(BaseModel):
+    enabled: bool = False
+    model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    top_n: int = 3
+
 class RetrievalConfig(BaseModel):
     """Retrieval settings"""
     search_type: str = "similarity"
-    k:  int = Field(default=3, ge=1, le=20)
+    k: int = Field(default=3, ge=1, le=20)
     score_threshold: float = Field(default=0.0, ge=0.0, le=1.0)
+
+    mmr: MMRConfig = MMRConfig()
+    rerank: RerankConfig = RerankConfig()
 
 class LLMConfig(BaseModel):
     """LLM settings"""
@@ -116,7 +130,8 @@ class PromptConfig(BaseModel):
     """Prompt template settings"""
     system_message: str
     rules: List[str]
-    template: str
+    template: str = ""
+    conversation_template: str | None = None
 
 class ChatConfig(BaseModel):
     """Chat interface settings"""
@@ -124,12 +139,44 @@ class ChatConfig(BaseModel):
     max_query_length: int = 500
     history_enabled:  bool = False
     max_history: int = 10
+    source_format: str = "detailed"
     messages: Dict[str, str] = {}
+
+
+class ConsoleHandlerConfig(BaseModel):
+    enabled: bool = True
+    level: str = "INFO"
+
+
+class FileHandlerConfig(BaseModel):
+    enabled: bool = True
+    level: str = "DEBUG"
+    max_bytes: int = 10485760
+    backup_count: int = 5
+
+
+class HandlersConfig(BaseModel):
+    console: ConsoleHandlerConfig = ConsoleHandlerConfig()
+    file: FileHandlerConfig = FileHandlerConfig()
 
 class LoggingConfig(BaseModel):
     """Logging configuration"""
     level: str = "INFO"
     format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    handlers: HandlersConfig = HandlersConfig()
+
+class MetricsConfig(BaseModel):
+    """Metrics configuration"""
+    enabled: bool = True
+    track: List[str] = [
+        "query_count",
+        "response_time",
+        "retrieval_time",
+        "generation_time",
+        "avg_similarity_score",
+    ]
+    save_interval: int = 10
+    file_path: str = "metrics.json"
 
 # ==================== MAIN SETTINGS CLASS ====================
 
@@ -150,7 +197,7 @@ class Settings(BaseModel):
     prompt: PromptConfig
     chat: ChatConfig
     logging: LoggingConfig
-    
+    metrics: MetricsConfig
     class Config:
         # Học: Pydantic config
         arbitrary_types_allowed = True

@@ -1,0 +1,36 @@
+{
+  "query_count": 2,
+  "queries": [
+    {
+      "timestamp": "2026-02-12T00:36:30.188108",
+      "query": "ngày 11/09/2024 có hóa đơn nào?",
+      "response_time": 6.892839431762695,
+      "retrieval_time": 0.48961806297302246,
+      "generation_time": 6.402700662612915,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.29801076650619507,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-12T00:39:01.020760",
+      "query": "thông tin tài liệu có tên \"Walter\"",
+      "response_time": 22.493298053741455,
+      "retrieval_time": 0.19462990760803223,
+      "generation_time": 22.298668146133423,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.31373209953308107,
+      "success": true,
+      "error": null
+    }
+  ],
+  "summary": {
+    "total_queries": 2,
+    "successful": 2,
+    "failed": 0,
+    "avg_response_time": 14.693068742752075,
+    "avg_retrieval_time": 0.34212398529052734,
+    "avg_generation_time": 14.350684404373169,
+    "avg_similarity_score": 0.30587143301963804
+  }
+}
