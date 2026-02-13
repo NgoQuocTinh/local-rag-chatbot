@@ -142,23 +142,24 @@ class ChatConfig(BaseModel):
     source_format: str = "detailed"
     messages: Dict[str, str] = {}
 
-
+# Logging configuration
 class ConsoleHandlerConfig(BaseModel):
     enabled: bool = True
     level: str = "INFO"
 
-
+# File handler configuration
 class FileHandlerConfig(BaseModel):
     enabled: bool = True
     level: str = "DEBUG"
     max_bytes: int = 10485760
     backup_count: int = 5
 
-
+# Handlers configuration - Combine console and file handler
 class HandlersConfig(BaseModel):
     console: ConsoleHandlerConfig = ConsoleHandlerConfig()
     file: FileHandlerConfig = FileHandlerConfig()
 
+# Logging configuration - Combine level and format with handlers
 class LoggingConfig(BaseModel):
     """Logging configuration"""
     level: str = "INFO"

@@ -24,6 +24,7 @@ def setup_logger(
     """
     settings = get_settings()
     handlers = settings.logging.handlers
+    # Get logger with name
     logger = logging.getLogger(name)
     
     # Prevent duplicate handlers
@@ -36,6 +37,8 @@ def setup_logger(
     formatter = logging.Formatter(settings.logging.format)
     
     # Console handler
+    # If console handler is enabled
+    # Set level and formatter for console handler
     if handlers.console.enabled:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(
@@ -45,6 +48,8 @@ def setup_logger(
         logger.addHandler(console_handler)
     
         # File handler
+        # If file handler is enabled
+        # Set level and formatter for file handler
     if handlers.file.enabled:
         log_file = Path(settings.paths.log_file)
         log_file.parent.mkdir(exist_ok=True)
