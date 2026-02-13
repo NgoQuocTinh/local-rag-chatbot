@@ -75,7 +75,7 @@ class EmbeddingsConfig(BaseModel):
     model_name:  str = "all-MiniLM-L6-v2"
     device: str = "cuda"
     normalize: bool = True
-    batch_size: int = 32
+    batch_size: int = 32 # Batch embedding for speed
     alternatives: Optional[Dict[str, str]] = None
 
 class VectorDBConfig(BaseModel):
@@ -93,17 +93,17 @@ class VectorDBConfig(BaseModel):
     hnsw:  HNSWConfig = HNSWConfig()
 
 class MMRConfig(BaseModel):
-    fetch_k: int = 20
+    fetch_k: int = 20 # Fetch 20 candidates
     lambda_mult: float = Field(default=0.5, ge=0.0, le=1.0)
 
 class RerankConfig(BaseModel):
-    enabled: bool = False
+    enabled: bool = False # Will implement later
     model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     top_n: int = 3
 
 class RetrievalConfig(BaseModel):
     """Retrieval settings"""
-    search_type: str = "similarity"
+    search_type: str = "similarity" # Changed to MMR for diversity  
     k: int = Field(default=3, ge=1, le=20)
     score_threshold: float = Field(default=0.0, ge=0.0, le=1.0)
 
