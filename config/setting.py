@@ -92,15 +92,27 @@ class VectorDBConfig(BaseModel):
     
     hnsw:  HNSWConfig = HNSWConfig()
 
+# MMR configuration
+# MMR is a retrieval method that uses a combination of similarity and diversity to retrieve the best candidates
+# Lambda multiplier is a hyperparameter that controls the balance between relevance and diversity
+# Fetch k is the number of candidates to fetch
+# The reason we use MMR is because it is a good balance between relevance and diversity
 class MMRConfig(BaseModel):
     fetch_k: int = 20 # Fetch 20 candidates
     lambda_mult: float = Field(default=0.5, ge=0.0, le=1.0)
 
+# Rerank configuration
+# Rerank is a retrieval method that uses a re-ranking model to re-rank the candidates
+# Top n is the number of candidates to return
+# The reason we use rerank is because we want to re-rank the candidates to ensure that we have the best candidates
 class RerankConfig(BaseModel):
     enabled: bool = False # Will implement later
     model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     top_n: int = 3
 
+# Retrieval configuration
+# Retrieval is the process of retrieving the best candidates from the vector database
+# The reason we use retrieval is because we want to retrieve the best candidates from the vector database
 class RetrievalConfig(BaseModel):
     """Retrieval settings"""
     search_type: str = "similarity" # Changed to MMR for diversity  
@@ -110,6 +122,9 @@ class RetrievalConfig(BaseModel):
     mmr: MMRConfig = MMRConfig()
     rerank: RerankConfig = RerankConfig()
 
+# LLM configuration
+# LLM is the language model that will be used to generate the response
+# The reason we use LLM is because we want to generate the response
 class LLMConfig(BaseModel):
     """LLM settings"""
     provider: str = "ollama"
@@ -139,8 +154,8 @@ class ChatConfig(BaseModel):
     max_query_length: int = 500
     history_enabled:  bool = False
     max_history: int = 10
-    source_format: str = "detailed"
-    messages: Dict[str, str] = {}
+    source_format: str = "detailed" # detailed | compact | none
+    messages: Dict[str, str] = {} # Welcome message, exit message, processing message, error message
 
 # Logging configuration
 class ConsoleHandlerConfig(BaseModel):
@@ -166,6 +181,9 @@ class LoggingConfig(BaseModel):
     format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     handlers: HandlersConfig = HandlersConfig()
 
+# Metrics configuration
+# Metrics is the process of tracking the performance of the system
+# The reason we use metrics is because we want to track the performance of the system
 class MetricsConfig(BaseModel):
     """Metrics configuration"""
     enabled: bool = True
@@ -176,8 +194,8 @@ class MetricsConfig(BaseModel):
         "generation_time",
         "avg_similarity_score",
     ]
-    save_interval: int = 10
-    file_path: str = "metrics.json"
+    save_interval: int = 10 # Save every 10 queries
+    file_path: str = "metrics.json" # Metrics file to keep information of evaluate response
 
 # ==================== MAIN SETTINGS CLASS ====================
 
