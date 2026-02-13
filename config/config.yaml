@@ -8,7 +8,7 @@ app:
 
 # ==================== PATHS ====================
 paths:
-  data_dir: "data/"      # Changed to support multiple files
+  data_dir: "data/documents"      # Changed to support multiple files
   db_dir: "chroma_db"
   log_file: "rag_system.log"
   metrics_file: "metrics.json"   # File to store metrics
@@ -88,6 +88,9 @@ prompt:
   rules:
     - "Chỉ sử dụng thông tin từ ngữ cảnh"
     - "Nếu không biết, nói 'Tôi không tìm thấy thông tin'"
+    - "Không được suy đoán khi thiếu thông tin"
+    - "Câu trả lời phải được trích dẫn và tổng hợp từ nhiều tải liệu"
+    - "Nếu thông tin của câu trả lời xuất hiện ở nhiều nơi thì cần phải tổng hợp thông tin đó lại rồi mới trả lởi"
     - "Trả lời bằng Tiếng Việt rõ ràng"
     - "Trích dẫn nguồn (tên file, trang số)"
   

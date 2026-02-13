@@ -1,5 +1,5 @@
 {
-  "query_count": 2,
+  "query_count": 6,
   "queries": [
     {
       "timestamp": "2026-02-12T00:36:30.188108",
@@ -22,15 +22,59 @@
       "avg_similarity_score": 0.31373209953308107,
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2026-02-12T22:51:12.025585",
+      "query": "tổng hợp thông tin của 2 tài liệu đầu tiên",
+      "response_time": 30.93740439414978,
+      "retrieval_time": 0.4542417526245117,
+      "generation_time": 30.48316264152527,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.33902411460876464,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-12T23:01:53.843828",
+      "query": "giới thiệu cho tôi về Word2vec",
+      "response_time": 26.729480981826782,
+      "retrieval_time": 0.46828556060791016,
+      "generation_time": 26.261195421218872,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.35576930046081545,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-12T23:04:03.429631",
+      "query": "đưa ra công thức tổng quan của Word2vec",
+      "response_time": 15.095572233200073,
+      "retrieval_time": 0.013041973114013672,
+      "generation_time": 15.08253026008606,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.2688316583633423,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-12T23:09:39.993159",
+      "query": "cung cấp thông tin cho tôi về Neural Network",
+      "response_time": 32.97949147224426,
+      "retrieval_time": 0.012594461441040039,
+      "generation_time": 32.96689701080322,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.3579322338104248,
+      "success": true,
+      "error": null
     }
   ],
   "summary": {
-    "total_queries": 2,
-    "successful": 2,
+    "total_queries": 6,
+    "successful": 6,
     "failed": 0,
-    "avg_response_time": 14.693068742752075,
-    "avg_retrieval_time": 0.34212398529052734,
-    "avg_generation_time": 14.350684404373169,
-    "avg_similarity_score": 0.30587143301963804
+    "avg_response_time": 22.521347761154175,
+    "avg_retrieval_time": 0.2720686197280884,
+    "avg_generation_time": 22.249192357063293,
+    "avg_similarity_score": 0.3222166955471039
   }
 }
