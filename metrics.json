@@ -1,5 +1,5 @@
 {
-  "query_count": 6,
+  "query_count": 7,
   "queries": [
     {
       "timestamp": "2026-02-12T00:36:30.188108",
@@ -66,15 +66,26 @@
       "avg_similarity_score": 0.3579322338104248,
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2026-02-13T22:12:08.724552",
+      "query": "theo các tài liệu, Neural Network là gì?",
+      "response_time": 22.800436973571777,
+      "retrieval_time": 0.5019514560699463,
+      "generation_time": 22.29848551750183,
+      "num_retrieved_docs": 5,
+      "avg_similarity_score": 0.4576443672180176,
+      "success": true,
+      "error": null
     }
   ],
   "summary": {
-    "total_queries": 6,
-    "successful": 6,
+    "total_queries": 7,
+    "successful": 7,
     "failed": 0,
-    "avg_response_time": 22.521347761154175,
-    "avg_retrieval_time": 0.2720686197280884,
-    "avg_generation_time": 22.249192357063293,
-    "avg_similarity_score": 0.3222166955471039
+    "avg_response_time": 22.561217648642405,
+    "avg_retrieval_time": 0.3049090249197824,
+    "avg_generation_time": 22.25623423712594,
+    "avg_similarity_score": 0.34156350578580585
   }
 }

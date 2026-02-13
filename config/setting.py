@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==================== PYDANTIC MODELS ====================
-# Học: Pydantic giúp validate config và có autocomplete
+# Pydantic giúp validate config và có autocomplete
 
 class AppConfig(BaseModel):
     """Application settings"""
@@ -41,7 +41,7 @@ class PathsConfig(BaseModel):
     pdf_file: str = "document.pdf"
     db_dir: str = "chroma_db"
     log_file: str = "rag_system.log"
-    metrics_file: str = "metrics.json"
+    metrics_file: str = "metrics.json" # Metrics file to keep information of evaluate response
     
     @property
     def full_pdf_path(self) -> str:
@@ -131,7 +131,7 @@ class PromptConfig(BaseModel):
     system_message: str
     rules: List[str]
     template: str = ""
-    conversation_template: str | None = None
+    conversation_template: str | None = None # Match with config file
 
 class ChatConfig(BaseModel):
     """Chat interface settings"""
