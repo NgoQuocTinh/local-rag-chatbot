@@ -63,6 +63,11 @@ def get_conversation_prompt() -> ChatPromptTemplate:
     NGỮ CẢNH TÀI LIỆU:
     {{context}}
 
+    YÊU CẦU:
+    - Trả lời như một gia sư, giải thích rõ ràng, từng bước.
+    - Mỗi kết luận/định nghĩa chính phải dẫn nguồn: tên file, chương/mục, trang.
+    - Nếu suy luận thêm ngoài tài liệu, phải đánh dấu rõ là "suy luận".
+
     CÂU HỎI MỚI: {{question}}
 
     TRẢ LỜI:"""

@@ -21,15 +21,19 @@ pdf:
   skip_existing: true             # Skip if already in DB
 
 # ==================== TEXT SPLITTING ====================
+# Large chunk size for a documents with many letters (like a book, a article, a report, etc.)
+# Small chunk size for a documents with few letters (like a email, a message, a short text, etc.)
+# Large chunk overlap for a documents with many letters (like a book, a article, a report, etc.)
+# Small chunk overlap for a documents with few letters (like a email, a message, a short text, etc.)
 chunking:
-  chunk_size:  1000
-  chunk_overlap: 200
-  separators: ["\n\n", "\n", ". ", " ", ""]
+  chunk_size:  1200 # for a documents with many letters (like a book, a article, a report, etc.)
+  chunk_overlap: 250 # for a documents with many letters (like a book, a article, a report, etc.)
+  separators: ["\n\n", "\n", ". ", " ", ""] # for a documents with many letters (like a book, a article, a report, etc.)
   add_metadata: true              # Add rich metadata to chunks
 
 # ==================== EMBEDDINGS ====================
 embeddings: 
-  model_name: "all-MiniLM-L6-v2"
+  model_name: "all-MiniLM-L6-v2" # all-MiniLM-L6-v2; all-mpnet-base-v2: for english text
   device: "cuda"
   normalize: true
   batch_size:  32                  # Batch embedding for speed
@@ -52,14 +56,22 @@ vectordb:
 
 # ==================== RETRIEVAL ====================
 retrieval:
-  search_type: "mmr"              # Changed to MMR for diversity
-  k: 5                            # Increased from 3
-  score_threshold: 0.0
+  search_type: "mmr"              # Changed to MMR for diversity; mmr: Maximum Marginal Relevance, use it when you want to retrieve the most relevant documents, 
+  # similarity: "similarity"        # Similarity Search, use it when you want to retrieve the most similar documents
+  k: 6                          # Increased from 3; k: Number of documents to retrieve
+  score_threshold: 0.2            # Score threshold; 0.0: No threshold, 1.0: All documents
   
+  # Similarity configuration
+  # similarity:
+  #   k: 5                            # Increased from 3; k: Number of documents to retrieve
+  #   score_threshold: 0.0            # Score threshold; 0.0: No threshold, 1.0: All documents 
+
+  # MMR configuration
   mmr:
-    fetch_k: 20                   # Fetch 20 candidates
-    lambda_mult: 0.5              # Balance relevance vs diversity
+    fetch_k: 30                   # Fetch 20 candidates; fetch_k: Number of documents to fetch
+    lambda_mult: 0.4              # Balance relevance vs diversity
   
+  # Rerank configuration
   rerank:                         # Re-ranking
     enabled: false                # Will implement later
     model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
@@ -93,6 +105,8 @@ prompt:
     - "Nếu thông tin của câu trả lời xuất hiện ở nhiều nơi thì cần phải tổng hợp thông tin đó lại rồi mới trả lởi"
     - "Trả lời bằng Tiếng Việt rõ ràng"
     - "Trích dẫn nguồn (tên file, trang số)"
+    - "Giải thích từng bước, ưu tiên trực quan, ví dụ cụ thể"
+    - "Luôn trích dẫn phần trong tài liệu (tên file, chương/mục, trang) khi đưa ra định nghĩa hoặc công thức"
   
   # Conversation-aware template
   conversation_template: |
@@ -116,7 +130,7 @@ chat:
   show_sources: true
   max_query_length: 500
   history_enabled: true           # Enable conversation memory
-  max_history:  5                  # Keep last 5 exchanges
+  max_history:  8                  # Keep last 5 exchanges
   
   source_format: "detailed"       # detailed | compact | none
   
