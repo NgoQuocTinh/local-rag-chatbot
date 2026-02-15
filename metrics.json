@@ -1,5 +1,5 @@
 {
-  "query_count": 10,
+  "query_count": 14,
   "queries": [
     {
       "timestamp": "2026-02-12T00:36:30.188108",
@@ -110,15 +110,59 @@
       "avg_similarity_score": 0.36606623729070026,
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2026-02-14T23:22:13.985087",
+      "query": "hãy cho tôi biết Neural Network là gì",
+      "response_time": 44.20210528373718,
+      "retrieval_time": 0.48441100120544434,
+      "generation_time": 43.71769428253174,
+      "num_retrieved_docs": 6,
+      "avg_similarity_score": 0.48295603195826214,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-14T23:24:37.369515",
+      "query": "let me know about Neural Network",
+      "response_time": 61.576600551605225,
+      "retrieval_time": 0.015166044235229492,
+      "generation_time": 61.56089901924133,
+      "num_retrieved_docs": 6,
+      "avg_similarity_score": 0.5898084044456482,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-15T00:02:40.328551",
+      "query": "what is Neural Network?",
+      "response_time": 34.28158617019653,
+      "retrieval_time": 0.5065946578979492,
+      "generation_time": 33.77398371696472,
+      "num_retrieved_docs": 6,
+      "avg_similarity_score": 0.6155428687731425,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-15T00:07:39.638677",
+      "query": "let me know about NLP",
+      "response_time": 27.37770962715149,
+      "retrieval_time": 0.01736283302307129,
+      "generation_time": 27.360346794128418,
+      "num_retrieved_docs": 6,
+      "avg_similarity_score": 0.6011520822842916,
+      "success": true,
+      "error": null
     }
   ],
   "summary": {
-    "total_queries": 10,
-    "successful": 10,
+    "total_queries": 14,
+    "successful": 14,
     "failed": 0,
-    "avg_response_time": 24.131199145317076,
-    "avg_retrieval_time": 0.35689802169799806,
-    "avg_generation_time": 23.774148917198183,
-    "avg_similarity_score": 0.3541801734765371
+    "avg_response_time": 29.196428077561514,
+    "avg_retrieval_time": 0.32803676809583393,
+    "avg_generation_time": 28.868172356060573,
+    "avg_similarity_score": 0.4165186515876225
   }
 }

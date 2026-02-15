@@ -33,7 +33,7 @@ chunking:
 
 # ==================== EMBEDDINGS ====================
 embeddings: 
-  model_name: "all-MiniLM-L6-v2" # all-MiniLM-L6-v2; all-mpnet-base-v2: for english text
+  model_name: "all-mpnet-base-v2" # all-MiniLM-L6-v2; all-mpnet-base-v2: for english text
   device: "cuda"
   normalize: true
   batch_size:  32                  # Batch embedding for speed
@@ -56,10 +56,12 @@ vectordb:
 
 # ==================== RETRIEVAL ====================
 retrieval:
-  search_type: "mmr"              # Changed to MMR for diversity; mmr: Maximum Marginal Relevance, use it when you want to retrieve the most relevant documents, 
-  # similarity: "similarity"        # Similarity Search, use it when you want to retrieve the most similar documents
-  k: 6                          # Increased from 3; k: Number of documents to retrieve
-  score_threshold: 0.2            # Score threshold; 0.0: No threshold, 1.0: All documents
+# mmr: Balance relevance (sự tương đồng) vs diversity (sự đa dạng). it gonna combine from Doc A, Doc B,.... to get the most relevant documents and response
+# similarity: Balance relevance (sự tương đồng) vs diversity (sự đa dạng)
+  search_type: "mmr"          # Changed to MMR for diversity; mmr: Maximum Marginal Relevance, use it when you want to retrieve the most relevant documents, 
+  # similarity: "similarity"  # Similarity Search, use it when you want to retrieve the most similar documents
+  k: 6                        # Increased from 3; k: Number of documents to retrieve
+  score_threshold: 0.5        # Score threshold; 0.0: No threshold, 1.0: All documents. If it too small, it gonna return with fake documents
   
   # Similarity configuration
   # similarity:
@@ -69,11 +71,11 @@ retrieval:
   # MMR configuration
   mmr:
     fetch_k: 30                   # Fetch 20 candidates; fetch_k: Number of documents to fetch
-    lambda_mult: 0.4              # Balance relevance vs diversity
+    lambda_mult: 0.7              # Balance relevance vs diversity, 0.0: diversity (đa dạng), 1.0: relevance (chính xác tuyệt đối)
   
   # Rerank configuration
   rerank:                         # Re-ranking
-    enabled: false                # Will implement later
+    enabled: true                # Will implement later
     model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
     top_n: 3
 
