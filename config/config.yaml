@@ -33,7 +33,7 @@ chunking:
 
 # ==================== EMBEDDINGS ====================
 embeddings: 
-  model_name: "all-mpnet-base-v2" # all-MiniLM-L6-v2; all-mpnet-base-v2: for english text
+  model_name: "paraphrase-multilingual-mpnet-base-v2" # all-MiniLM-L6-v2; all-mpnet-base-v2: for english text
   device: "cuda"
   normalize: true
   batch_size:  32                  # Batch embedding for speed
@@ -60,8 +60,8 @@ retrieval:
 # similarity: Balance relevance (sự tương đồng) vs diversity (sự đa dạng)
   search_type: "mmr"          # Changed to MMR for diversity; mmr: Maximum Marginal Relevance, use it when you want to retrieve the most relevant documents, 
   # similarity: "similarity"  # Similarity Search, use it when you want to retrieve the most similar documents
-  k: 6                        # Increased from 3; k: Number of documents to retrieve
-  score_threshold: 0.5        # Score threshold; 0.0: No threshold, 1.0: All documents. If it too small, it gonna return with fake documents
+  k: 4                        # Increased from 3; k: Number of documents to retrieve
+  score_threshold: 0.6        # Score threshold; 0.0: No threshold, 1.0: All documents. If it too small, it gonna return with fake documents
   
   # Similarity configuration
   # similarity:
@@ -70,8 +70,8 @@ retrieval:
 
   # MMR configuration
   mmr:
-    fetch_k: 30                   # Fetch 20 candidates; fetch_k: Number of documents to fetch
-    lambda_mult: 0.7              # Balance relevance vs diversity, 0.0: diversity (đa dạng), 1.0: relevance (chính xác tuyệt đối)
+    fetch_k: 20                   # Fetch 20 candidates; fetch_k: Number of documents to fetch
+    lambda_mult: 0.8              # Balance relevance vs diversity, 0.0: diversity (đa dạng), 1.0: relevance (chính xác tuyệt đối)
   
   # Rerank configuration
   rerank:                         # Re-ranking
