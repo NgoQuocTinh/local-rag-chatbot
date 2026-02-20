@@ -16,11 +16,11 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent))
 
 from langchain_chroma import Chroma
-from langchain_community.chat_models import ChatOllama
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
 from config.setting import get_settings
+from src.llm.llm_factory import get_llm
 from src.utils.logger import setup_logger
 from src.utils.metrics import metrics_tracker
 from src.ingestion.embeddings import embedding_manager
@@ -42,7 +42,7 @@ class ChatBot:
         self.settings = get_settings()
         self.vectorstore: Optional[Chroma] = None
         self.retriever: Optional[AdvancedRetriever] = None
-        self.llm: Optional[ChatOllama] = None
+        self.llm = None
         self.memory: Optional[ConversationMemory] = None
         self.chain = None
     
@@ -88,32 +88,21 @@ class ChatBot:
             return False
     
     def _initialize_llm(self) -> bool:
-        """Initialize LLM"""
+        """Initialize LLM from config (Ollama, Gemini, etc.)"""
         try:
-            config = self.settings.llm
-            
-            logger.info(f"Đang kết nối {config.provider}: {config.model}")
-            
-            self.llm = ChatOllama(
-                model=config.model,
-                base_url=config.ollama.base_url,
-                temperature=config.temperature,
-                num_predict=config.max_tokens,
-                top_p=config.top_p,
-                top_k=config.top_k,
-                repeat_penalty=config.repeat_penalty,
-                timeout=config.ollama.timeout
-            )
-            
-            # Test connection
+            cfg = self.settings.llm
+            logger.info(f"Đang kết nối {cfg.provider}: {cfg.model}")
+            self.llm = get_llm()
             self.llm.invoke("test")
             logger.info("✓ LLM sẵn sàng")
-            
             return True
-            
         except Exception as e:
             logger.error(f"Lỗi kết nối LLM: {str(e)}", exc_info=True)
-            logger.info("Kiểm tra: ollama serve")
+            cfg = self.settings.llm
+            if cfg.provider == "ollama":
+                logger.info("Kiểm tra: ollama serve")
+            elif cfg.provider == "gemini":
+                logger.info("Kiểm tra: GOOGLE_API_KEY trong .env")
             return False
     
     def _create_chain(self):

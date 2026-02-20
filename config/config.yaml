@@ -80,11 +80,15 @@ retrieval:
     top_n: 3
 
 # ==================== LLM ====================
+# provider: ollama (local) | gemini (Google AI)
+# Đổi provider + model để chuyển:
+#   Ollama: provider: ollama, model: llama3
+#   Gemini: provider: gemini, model: gemini-2.0-flash
 llm:
-  provider: "ollama"
-  model: "llama3"
+  provider: "gemini"
+  model: "gemini-2.5-flash"
   temperature: 0.1
-  max_tokens: 512
+  max_tokens: 2048
   top_p: 0.9
   top_k: 40
   repeat_penalty: 1.1
@@ -92,6 +96,10 @@ llm:
   ollama:
     base_url: "http://localhost:11434"
     timeout: 60
+  
+  gemini:
+    # api_key: null   # null = use GOOGLE_API_KEY from .env
+    max_output_tokens: null  # null = use llm.max_tokens
 
 # ==================== PROMPT ====================
 prompt:

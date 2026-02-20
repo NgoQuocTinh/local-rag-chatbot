@@ -1,5 +1,5 @@
 {
-  "query_count": 18,
+  "query_count": 25,
   "queries": [
     {
       "timestamp": "2026-02-12T00:36:30.188108",
@@ -198,15 +198,92 @@
       "avg_similarity_score": 0.7119271159172058,
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2026-02-19T23:44:03.780885",
+      "query": "hãy cho tôi biết về neural network",
+      "response_time": 16.450318574905396,
+      "retrieval_time": 0.508136510848999,
+      "generation_time": 15.942182064056396,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7119271159172058,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-19T23:46:25.866666",
+      "query": "let me know about neural network",
+      "response_time": 18.721970319747925,
+      "retrieval_time": 0.013724088668823242,
+      "generation_time": 18.7082462310791,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7054750323295593,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-20T14:09:22.848923",
+      "query": "hãy cho tôi biết về neural network",
+      "response_time": 42.86850881576538,
+      "retrieval_time": 0.4811882972717285,
+      "generation_time": 42.38732051849365,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7119271159172058,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-20T14:11:34.828406",
+      "query": "hãy cho tôi biết về neural network",
+      "response_time": 3.2000315189361572,
+      "retrieval_time": 0.19408655166625977,
+      "generation_time": 3.0059449672698975,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7119271159172058,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-20T14:14:48.678204",
+      "query": "Neural network là gì? Giải thích chi tiết.",
+      "response_time": 3.322091579437256,
+      "retrieval_time": 0.014145135879516602,
+      "generation_time": 3.3079464435577393,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7178051173686981,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-20T14:17:09.293057",
+      "query": "Neural network là gì? Giải thích chi tiết.",
+      "response_time": 10.327146291732788,
+      "retrieval_time": 0.25014543533325195,
+      "generation_time": 10.075989246368408,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7178051173686981,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-20T14:18:04.643960",
+      "query": "So sánh neural network và machine learning truyền thống.",
+      "response_time": 10.278764724731445,
+      "retrieval_time": 0.015656471252441406,
+      "generation_time": 10.263108253479004,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7202371060848236,
+      "success": true,
+      "error": null
     }
   ],
   "summary": {
-    "total_queries": 18,
-    "successful": 18,
+    "total_queries": 25,
+    "successful": 25,
     "failed": 0,
-    "avg_response_time": 33.67001541455587,
-    "avg_retrieval_time": 0.3384307622909546,
-    "avg_generation_time": 33.331358790397644,
-    "avg_similarity_score": 0.481727566100933
+    "avg_response_time": 28.44916437149048,
+    "avg_retrieval_time": 0.3027534484863281,
+    "avg_generation_time": 28.146207838058473,
+    "avg_similarity_score": 0.5467279964288076
   }
 }

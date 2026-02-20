@@ -17,9 +17,9 @@ from typing import List, Optional, Tuple
 
 import streamlit as st
 from langchain_chroma import Chroma
-from langchain_community.chat_models import ChatOllama
 
 from config.setting import get_settings
+from src.llm.llm_factory import get_llm
 from src.ingestion.pdf_processor import PDFProcessor
 from src.ingestion.embeddings import embedding_manager
 from src.retrieval.retriever import AdvancedRetriever
@@ -81,19 +81,8 @@ def _get_vectorstore() -> Chroma:
 
 
 @st.cache_resource(show_spinner=False)
-def _get_llm() -> ChatOllama:
-    settings = get_settings()
-    cfg = settings.llm
-    return ChatOllama(
-        model=cfg.model,
-        base_url=cfg.ollama.base_url,
-        temperature=cfg.temperature,
-        num_predict=cfg.max_tokens,
-        top_p=cfg.top_p,
-        top_k=cfg.top_k,
-        repeat_penalty=cfg.repeat_penalty,
-        timeout=cfg.ollama.timeout,
-    )
+def _get_llm():
+    return get_llm()
 
 
 def _format_docs(docs) -> str:

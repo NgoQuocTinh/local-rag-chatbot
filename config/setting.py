@@ -122,12 +122,23 @@ class RetrievalConfig(BaseModel):
     mmr: MMRConfig = MMRConfig()
     rerank: RerankConfig = RerankConfig()
 
-# LLM configuration
-# LLM is the language model that will be used to generate the response
-# The reason we use LLM is because we want to generate the response
+# Ollama config - local LLM
+class OllamaConfig(BaseModel):
+    base_url: str = "http://localhost:11434"
+    timeout: int = 60
+
+
+# Gemini config - Google AI (requires GOOGLE_API_KEY in .env)
+class GeminiConfig(BaseModel):
+    api_key: Optional[str] = None  # None = use GOOGLE_API_KEY from env
+    # model examples: gemini-2.0-flash, gemini-1.5-pro, gemini-1.5-flash
+    max_output_tokens: Optional[int] = None  # None = use llm.max_tokens
+
+
+# LLM configuration - multi-provider
 class LLMConfig(BaseModel):
     """LLM settings"""
-    provider: str = "ollama"
+    provider: str = "ollama"  # ollama | gemini
     model: str = "llama3"
     temperature: float = Field(default=0.1, ge=0.0, le=2.0)
     max_tokens: int = Field(default=512, ge=1)
@@ -135,11 +146,8 @@ class LLMConfig(BaseModel):
     top_k: int = Field(default=40, ge=1)
     repeat_penalty: float = Field(default=1.1, ge=1.0)
     
-    class OllamaConfig(BaseModel):
-        base_url: str = "http://localhost:11434"
-        timeout: int = 60
-    
     ollama: OllamaConfig = OllamaConfig()
+    gemini: Optional[GeminiConfig] = None
 
 class PromptConfig(BaseModel):
     """Prompt template settings"""
