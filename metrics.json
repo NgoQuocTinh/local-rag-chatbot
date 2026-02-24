@@ -1,5 +1,5 @@
 {
-  "query_count": 25,
+  "query_count": 27,
   "queries": [
     {
       "timestamp": "2026-02-12T00:36:30.188108",
@@ -275,15 +275,37 @@
       "avg_similarity_score": 0.7202371060848236,
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2026-02-22T23:00:40.548812",
+      "query": "neural network là gì? hãy giải thích chi tiêt",
+      "response_time": 10.156272888183594,
+      "retrieval_time": 0.2518773078918457,
+      "generation_time": 9.904395580291748,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.0,
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2026-02-22T23:03:39.705341",
+      "query": "neural network là gì? hãy giải thích chi tiết",
+      "response_time": 9.230170488357544,
+      "retrieval_time": 0.1865999698638916,
+      "generation_time": 9.043570518493652,
+      "num_retrieved_docs": 4,
+      "avg_similarity_score": 0.7035825252532959,
+      "success": true,
+      "error": null
     }
   ],
   "summary": {
-    "total_queries": 25,
-    "successful": 25,
+    "total_queries": 27,
+    "successful": 27,
     "failed": 0,
-    "avg_response_time": 28.44916437149048,
-    "avg_retrieval_time": 0.3027534484863281,
-    "avg_generation_time": 28.146207838058473,
-    "avg_similarity_score": 0.5467279964288076
+    "avg_response_time": 27.05983528384456,
+    "avg_retrieval_time": 0.2965671662931089,
+    "avg_generation_time": 26.763080075935083,
+    "avg_similarity_score": 0.5322882383693884
   }
 }

@@ -5,7 +5,7 @@ Advanced retrieval with MMR and filtering
 Maximum Marginal Relevance, metadata filtering
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
 
