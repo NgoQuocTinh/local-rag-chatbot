@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+.vscode/
+.git/
+chroma_db/
+rag_system.log
+metrics.json
+data/documents/*
+!data/documents/.gitkeep
