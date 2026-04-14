@@ -3,6 +3,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.setting import get_settings
 
+from src.api.notes import router as notes_router
+from src.api.graph import router as graph_router
+from src.api.ai import router as ai_router
+
 # Khởi tạo Settings
 settings = get_settings()
 
@@ -12,6 +16,11 @@ app = FastAPI(
     version=settings.app.version,
     description="Knowledge Base & RAG Backend API"
 )
+
+# Thêm Routes quản lý Notes, Graph và AI
+app.include_router(notes_router)
+app.include_router(graph_router)
+app.include_router(ai_router)
 
 # Cấu hình CORS để Frontend (Next.js) có thể gọi được API
 origins = [

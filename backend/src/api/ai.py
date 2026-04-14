@@ -1,0 +1,163 @@
+import shutil
+from pathlib import Path
+from typing import List, Optional
+from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException
+
+from config.setting import get_settings
+from src.utils.logger import setup_logger
+from src.ingestion.markdown_processor import MarkdownProcessor
+from src.ingestion.embeddings import embedding_manager
+from src.retrieval.retriever import AdvancedRetriever
+from src.chat.prompts import get_rag_prompt
+from src.llm.llm_factory import get_llm
+from langchain_chroma import Chroma
+from langchain_core.output_parsers import StrOutputParser
+
+logger = setup_logger(__name__)
+router = APIRouter(prefix="/api/ai", tags=["AI"])
+settings = get_settings()
+
+class SyncResponse(BaseModel):
+    status: str
+    message: str
+    documents_processed: int
+    chunks_created: int
+
+class ChatRequest(BaseModel):
+    query: str
+    selected_files: Optional[List[str]] = None
+
+class ChatResponse(BaseModel):
+    answer: str
+    sources: List[str]
+
+@router.post("/sync", response_model=SyncResponse)
+def sync_markdown_to_vector_db():
+    """
+    Quét toàn bộ thư mục data, xử lý Markdown và nạp vào ChromaDB.
+    Thay thế dữ liệu cũ bằng dữ liệu mới.
+    """
+    logger.info("Starting Markdown VectorDB sync...")
+    
+    try:
+        # Xóa ChromaDB cũ nếu tồn tại
+        db_path = Path(settings.paths.db_dir)
+        if db_path.exists() and db_path.is_dir():
+            shutil.rmtree(db_path)
+            logger.info("Deleted old ChromaDB data.")
+    
+        # Quét và xử lý file markdown
+        processor = MarkdownProcessor()
+        chunks = processor.process_directory()
+        
+        if not chunks:
+            return SyncResponse(
+                status="success",
+                message="No markdown files found to process.",
+                documents_processed=0,
+                chunks_created=0
+            )
+            
+        # Lấy Embedding Model
+        embeddings = embedding_manager.get_embeddings()
+        
+        # Nạp vào ChromaDB
+        vectordb = Chroma.from_documents(
+            documents=chunks,
+            embedding=embeddings,
+            persist_directory=str(db_path),
+            collection_name=settings.vectordb.collection_name,
+            collection_metadata={
+                "hnsw:space": settings.vectordb.hnsw.space,
+                "hnsw:construction_ef": settings.vectordb.hnsw.construction_ef,
+                "hnsw:M": settings.vectordb.hnsw.M
+            }
+        )
+        
+        count = vectordb._collection.count()
+        logger.info(f"Sync complete. Vectors created: {count}")
+        
+        # Trích xuất số lượng file gốc thực tế đã xử lý
+        unique_files = set()
+        for c in chunks:
+            filename = c.metadata.get('filename')
+            if filename:
+                unique_files.add(filename)
+                
+        return SyncResponse(
+            status="success",
+            message="Successfully synced markdown files to VectorDB.",
+            documents_processed=len(unique_files),
+            chunks_created=count
+        )
+        
+    except Exception as e:
+        logger.error(f"Error during sync: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Sync failed: {str(e)}")
+
+@router.post("/chat", response_model=ChatResponse)
+def chat_with_ai(request: ChatRequest):
+    """
+    RAG Chat endpoint. Có thể lọc ngữ cảnh tĩnh theo danh sách `selected_files`.
+    (NotebookLLM style multi-source grounding)
+    """
+    logger.info(f"Received chat query. Grounding files: {request.selected_files}")
+    
+    try:
+        # Khởi tạo VectorDB và Retriever
+        db_path = settings.paths.db_dir
+        if not Path(db_path).exists():
+            raise HTTPException(status_code=400, detail="VectorDB not found. Please sync first.")
+            
+        embeddings = embedding_manager.get_embeddings()
+        vectordb = Chroma(
+            persist_directory=str(db_path),
+            embedding_function=embeddings,
+            collection_name=settings.vectordb.collection_name
+        )
+        
+        retriever = AdvancedRetriever(vectordb)
+        
+        # Tạo metadata filter nếu user chỉ định selected_files
+        search_filter = None
+        if request.selected_files:
+            if len(request.selected_files) == 1:
+                search_filter = {"filename": request.selected_files[0]}
+            else:
+                search_filter = {"filename": {"$in": request.selected_files}}
+            
+        # Retrieve docs using MMR and filter
+        docs = retriever.retrieve(
+            query=request.query,
+            search_type='mmr',
+            k=settings.retrieval.k,
+            filter=search_filter
+        )
+        
+        # Tạo Context format
+        context_text = "\n\n".join([f"[Tài liệu: {d.metadata.get('filename')}]\n{d.page_content}" for d in docs])
+        unique_sources = retriever.get_unique_sources(docs)
+        
+        # Khởi tạo LLM
+        llm = get_llm()
+        prompt = get_rag_prompt()
+        
+        # Langchain chain execution
+        chain = prompt | llm | StrOutputParser()
+        answer = chain.invoke({
+            "context": context_text,
+            "question": request.query
+        })
+        
+        return ChatResponse(
+            answer=answer,
+            sources=unique_sources
+        )
+        
+    except HTTPException:
+        # Re-raise known exceptions
+        raise
+    except Exception as e:
+        logger.error(f"Error processing chat: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Chat generation failed: {str(e)}")
