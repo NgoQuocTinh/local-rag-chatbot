@@ -26,8 +26,8 @@ pdf:
 # Large chunk overlap for a documents with many letters (like a book, a article, a report, etc.)
 # Small chunk overlap for a documents with few letters (like a email, a message, a short text, etc.)
 chunking:
-  chunk_size:  1200 # for a documents with many letters (like a book, a article, a report, etc.)
-  chunk_overlap: 250 # for a documents with many letters (like a book, a article, a report, etc.)
+  chunk_size:  500 #1200 # for a documents with many letters (like a book, a article, a report, etc.)
+  chunk_overlap: 50 #250 # for a documents with many letters (like a book, a article, a report, etc.)
   separators: ["\n\n", "\n", ". ", " ", ""] # for a documents with many letters (like a book, a article, a report, etc.)
   add_metadata: true              # Add rich metadata to chunks
 
@@ -60,7 +60,7 @@ retrieval:
 # similarity: Balance relevance (sự tương đồng) vs diversity (sự đa dạng)
   search_type: "mmr"          # Changed to MMR for diversity; mmr: Maximum Marginal Relevance, use it when you want to retrieve the most relevant documents, 
   # similarity: "similarity"  # Similarity Search, use it when you want to retrieve the most similar documents
-  k: 4                        # Increased from 3; k: Number of documents to retrieve
+  k: 2 #4                        # Increased from 3; k: Number of documents to retrieve
   score_threshold: 0.6        # Score threshold; 0.0: No threshold, 1.0: All documents. If it too small, it gonna return with fake documents
   
   # Similarity configuration
@@ -83,10 +83,10 @@ retrieval:
 # provider: ollama (local) | gemini (Google AI)
 # Đổi provider + model để chuyển:
 #   Ollama: provider: ollama, model: llama3
-#   Gemini: provider: gemini, model: gemini-2.0-flash
+#   Gemini: provider: gemini, model: gemini-2.5-flash
 llm:
-  provider: "gemini"
-  model: "gemini-2.5-flash"
+  provider: "ollama"
+  model: "llama3"
   temperature: 0.1
   max_tokens: 2048
   top_p: 0.9
@@ -167,7 +167,7 @@ logging:
       backup_count: 5
 
 # ==================== METRICS ====================
-metrics:                          # ← NEW
+metrics:                          
   enabled: true
   track: 
     - "query_count"

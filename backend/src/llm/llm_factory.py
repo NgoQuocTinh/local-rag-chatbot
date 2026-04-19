@@ -33,7 +33,7 @@ def get_llm() -> BaseChatModel:
 
 
 def _create_ollama(cfg: Any) -> BaseChatModel:
-    from langchain_community.chat_models import ChatOllama
+    from langchain_ollama import ChatOllama
 
     return ChatOllama(
         model=cfg.model,
