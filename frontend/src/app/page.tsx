@@ -17,11 +17,11 @@ export default function Home() {
   // UX Error state
   const [error, setError] = useState<string | null>(null);
 
-  // Đổi tên state tabContents -> noteContentsById để tường minh hơn
+  // Rename state tabContents -> noteContentsById for clarity
   const [noteContentsById, setNoteContentsById] = useState<Record<string, string>>({});
   const [isLoadingContent, setIsLoadingContent] = useState(false);
 
-  // Dùng để keep track file đã load (tránh reload nếu activeTabId đổi qua lại)
+  // Keep track of loaded files (prevent reload if activeTabId switches back and forth)
   const loadedNotesRef = useRef<Set<string>>(new Set());
 
   // Fetch file list
@@ -48,7 +48,7 @@ export default function Home() {
     return () => controller.abort(); // Cleanup/Abort if tab switches very rapidly (though rare for notes list)
   }, []);
 
-  // Lắng nghe sự thay đổi của activeTabId để lấy content từ Backend
+  // Listen to activeTabId changes to fetch content from Backend
   useEffect(() => {
     if (!activeTabId || activeTabId.startsWith('draft-') || loadedNotesRef.current.has(activeTabId)) {
       return; 
@@ -78,9 +78,9 @@ export default function Home() {
     return () => {
       controller.abort(); // Cancel pending request if activeTabId changes before this one finishes
     };
-  }, [activeTabId]); // Dependency chỉ còn activeTabId
+  }, [activeTabId]); // Dependency is only activeTabId
 
-  // Hàm mở file sử dụng functional state update để tránh stale state
+  // Function to open file using functional state update to avoid stale state
   const handleOpenFile = (note: Note) => {
     setOpenTabs(prevTabs => {
       if (!prevTabs.find(tab => tab.id === note.id)) {
@@ -91,7 +91,7 @@ export default function Home() {
     setActiveTabId(note.id);
   };
 
-  // Hàm mở note nháp mới
+  // Function to open a new draft note
   const handleNewNote = () => {
     const newId = `draft-${Date.now()}`;
     setOpenTabs(prevTabs => [...prevTabs, { id: newId, title: 'Untitled Note' }]);
@@ -100,12 +100,12 @@ export default function Home() {
     setActiveTabId(newId);
   };
 
-  // Hàm xử lý việc gõ text vào note
+  // Function to handle typing text into note
   const handleContentChange = (newContent: string) => {
     setNoteContentsById(prev => ({ ...prev, [activeTabId]: newContent }));
   };
 
-  // Hàm đóng tab
+  // Function to close tab
   const handleCloseTab = (e: React.MouseEvent, idToClose: string) => {
     e.stopPropagation();
     setOpenTabs(prevTabs => {
@@ -143,7 +143,7 @@ export default function Home() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         isLoadingContent={isLoadingContent}
-        tabContents={noteContentsById}  // Prop component vẫn giữ nguyên
+        tabContents={noteContentsById}  // Component prop remains unchanged
         handleContentChange={handleContentChange}
       />
 

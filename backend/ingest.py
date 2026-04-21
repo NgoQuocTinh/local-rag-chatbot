@@ -31,51 +31,55 @@ def create_vector_db() -> bool:
     settings = get_settings()
     
     logger.info("=" * 70)
-    logger.info(f"BẮT ĐẦU INGESTION - {settings.app.name} v{settings.app.version}")
+    logger.info(f"START INGESTION - {settings.app.name} v{settings.app.version}")
     logger.info(f"Environment: {settings.app.environment}")
     logger.info("=" * 70)
     
     try:
         # Step 1: Process PDFs
-        logger.info("\n[1/3] Xử lý PDF files...")
+        logger.info("\n[1/3] Process PDF files...")
         processor = PDFProcessor()
         chunks = processor.process_directory()
         
         if not chunks:
-            logger.error(" Không có documents để xử lý")
+            logger.error(" No documents to process")
             return False
         
         # Show statistics
         stats = processor.get_statistics(chunks)
-        logger.info(f"\n Thống kê:")
-        logger.info(f"  • Số files: {stats['num_files']}")
-        logger.info(f"  • Số pages: {stats['num_pages']}")
-        logger.info(f"  • Số chunks: {stats['num_chunks']}")
-        logger.info(f"  • Trung bình chunk: {stats['avg_chunk_size']:.0f} ký tự")
+        logger.info(f"\n Statistics:")
+        logger.info(f"  • Number of files: {stats['num_files']}")
+        logger.info(f"  • Number of pages: {stats['num_pages']}")
+        logger.info(f"  • Number of chunks: {stats['num_chunks']}")
+        logger.info(f"  • Average chunk size: {stats['avg_chunk_size']:.0f} characters")
         logger.info(f"  • Files: {', '.join(stats['files'])}")
         
         # Step 2: Create embeddings
-        logger.info("\n[2/3] Tạo embeddings...")
+        logger.info("\n[2/3] Create embeddings...")
         embeddings = embedding_manager.get_embeddings()
         
         # Step 3: Save to vector DB
-        logger.info("\n[3/3] Lưu vào Vector Database...")
+        logger.info("\n[3/3] Save to Vector Database...")
         
         db_path = settings.paths.db_dir
         
         # Check existing DB
         if Path(db_path).exists():
-            logger.warning(f"Database đã tồn tại: {db_path}")
-            response = input("Bạn có muốn:\n  1. Ghi đè (overwrite)\n  2. Thêm vào (append)\n  3. Hủy\nChọn (1/2/3): ")
+            logger.warning(f"Database already exists: {db_path}")
+            response = input("Do you want to:
+  1. Overwrite
+  2. Append
+  3. Cancel
+Choose (1/2/3): ")
             
             if response == '1':
                 # Overwrite
                 import shutil
                 shutil.rmtree(db_path)
-                logger.info("Đã xóa database cũ")
+                logger.info("Deleted old database")
             elif response == '2':
                 # Append
-                logger.info("Sẽ thêm documents vào database hiện có")
+                logger.info("Will add documents to existing database")
                 vectordb = Chroma(
                     persist_directory=db_path,
                     embedding_function=embeddings,
@@ -83,10 +87,10 @@ def create_vector_db() -> bool:
                 )
                 vectordb.add_documents(chunks)
                 count = vectordb._collection.count()
-                logger.info(f"✓ Đã thêm vào database, tổng {count} vectors")
+                logger.info(f"✓ Added to database, total {count} vectors")
                 return True
             else:
-                logger.info("Hủy tạo database")
+                logger.info("Cancel database creation")
                 return False
         
         # Create new DB
@@ -103,19 +107,19 @@ def create_vector_db() -> bool:
         )
         
         count = vectordb._collection.count()
-        logger.info(f"✓ Database đã lưu với {count} vectors")
+        logger.info(f"✓ Database saved with {count} vectors")
         
         logger.info("\n" + "=" * 70)
-        logger.info(" HOÀN TẤT! Vector Database đã sẵn sàng")
+        logger.info(" COMPLETED! Vector Database is ready")
         logger.info("=" * 70)
         
         return True
         
     except KeyboardInterrupt:
-        logger.info("\n Đã hủy bởi người dùng")
+        logger.info("\n Cancelled by user")
         return False
     except Exception as e:
-        logger.error(f"\n Lỗi: {str(e)}", exc_info=True)
+        logger.error(f"\n Error: {str(e)}", exc_info=True)
         return False
 
 if __name__ == "__main__":

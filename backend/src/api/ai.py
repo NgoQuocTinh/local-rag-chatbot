@@ -35,19 +35,19 @@ class ChatResponse(BaseModel):
 @router.post("/sync", response_model=SyncResponse)
 def sync_markdown_to_vector_db():
     """
-    Quét toàn bộ thư mục data, xử lý Markdown và nạp vào ChromaDB.
-    Thay thế dữ liệu cũ bằng dữ liệu mới.
+    Scan the entire data directory, process Markdown, and load into ChromaDB.
+    Replace old data with new data.
     """
     logger.info("Starting Markdown VectorDB sync...")
     
     try:
-        # Xóa ChromaDB cũ nếu tồn tại
+        # Delete old ChromaDB if it exists
         db_path = Path(settings.paths.db_dir)
         if db_path.exists() and db_path.is_dir():
             shutil.rmtree(db_path)
             logger.info("Deleted old ChromaDB data.")
     
-        # Quét và xử lý file markdown
+        # Scan and process markdown files
         processor = MarkdownProcessor()
         chunks = processor.process_directory()
         
@@ -59,10 +59,10 @@ def sync_markdown_to_vector_db():
                 chunks_created=0
             )
             
-        # Lấy Embedding Model
+        # Get Embedding Model
         embeddings = embedding_manager.get_embeddings()
         
-        # Nạp vào ChromaDB
+        # Load into ChromaDB
         vectordb = Chroma.from_documents(
             documents=chunks,
             embedding=embeddings,
@@ -78,7 +78,7 @@ def sync_markdown_to_vector_db():
         count = vectordb._collection.count()
         logger.info(f"Sync complete. Vectors created: {count}")
         
-        # Trích xuất số lượng file gốc thực tế đã xử lý
+        # Extract the actual number of original files processed
         unique_files = set()
         for c in chunks:
             filename = c.metadata.get('filename')
@@ -99,13 +99,13 @@ def sync_markdown_to_vector_db():
 @router.post("/chat", response_model=ChatResponse)
 def chat_with_ai(request: ChatRequest):
     """
-    RAG Chat endpoint. Có thể lọc ngữ cảnh tĩnh theo danh sách `selected_files`.
+    RAG Chat endpoint. Can filter static context by `selected_files` list.
     (NotebookLLM style multi-source grounding)
     """
     logger.info(f"Received chat query. Grounding files: {request.selected_files}")
     
     try:
-        # Khởi tạo VectorDB và Retriever
+        # Initialize VectorDB and Retriever
         db_path = settings.paths.db_dir
         if not Path(db_path).exists():
             raise HTTPException(status_code=400, detail="VectorDB not found. Please sync first.")
@@ -119,7 +119,7 @@ def chat_with_ai(request: ChatRequest):
         
         retriever = AdvancedRetriever(vectordb)
         
-        # Tạo metadata filter nếu user chỉ định selected_files
+        # Create metadata filter if user specifies selected_files
         search_filter = None
         if request.selected_files:
             if len(request.selected_files) == 1:
@@ -135,11 +135,11 @@ def chat_with_ai(request: ChatRequest):
             filter=search_filter
         )
         
-        # Tạo Context format
-        context_text = "\n\n".join([f"[Tài liệu: {d.metadata.get('filename')}]\n{d.page_content}" for d in docs])
+        # Create Context format
+        context_text = "\n\n".join([f"[Document: {d.metadata.get('filename')}]\n{d.page_content}" for d in docs])
         unique_sources = retriever.get_unique_sources(docs)
         
-        # Khởi tạo LLM
+        # Initialize LLM
         llm = get_llm()
         prompt = get_rag_prompt()
         

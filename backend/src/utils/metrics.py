@@ -1,7 +1,7 @@
 """
 Metrics tracking for RAG system
 
-Học:  Measuring system performance
+Learn:  Measuring system performance
 """
 
 import json
@@ -29,7 +29,7 @@ class MetricsTracker:
     """
     Track and persist metrics
     
-    Học: Singleton pattern for metrics
+    Learn: Singleton pattern for metrics
     """
     _instance:  Optional['MetricsTracker'] = None
     

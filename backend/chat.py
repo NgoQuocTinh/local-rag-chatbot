@@ -35,7 +35,7 @@ class ChatBot:
     """
     Advanced RAG Chatbot with conversation memory
     
-    Học: Object-oriented design for complex chatbot
+    Learn: Object-oriented design for complex chatbot
     """
     
     def __init__(self):
@@ -51,17 +51,17 @@ class ChatBot:
         db_path = Path(self.settings.paths.db_dir)
         
         if not db_path.exists():
-            logger.error(f"Database không tồn tại: {db_path}")
-            logger.info("Chạy ingest_v4.py trước để tạo database")
+            logger.error(f"Database does not exist: {db_path}")
+            logger.info("Run ingestion script first to create database")
             return False
         
-        logger.info(f"✓ Database hợp lệ: {db_path}")
+        logger.info(f"✓ Valid database: {db_path}")
         return True
     
     def _load_vectorstore(self) -> bool:
         """Load vector database"""
         try:
-            logger.info("Đang load Vector Database...")
+            logger.info("Loading Vector Database...")
             
             embeddings = embedding_manager.get_embeddings()
             
@@ -75,7 +75,7 @@ class ChatBot:
             logger.info(f"✓ Database loaded: {count} documents")
             
             if count == 0:
-                logger.error("Database rỗng!")
+                logger.error("Database is empty!")
                 return False
             
             # Create advanced retriever
@@ -84,25 +84,25 @@ class ChatBot:
             return True
             
         except Exception as e:
-            logger.error(f"Lỗi load database: {str(e)}", exc_info=True)
+            logger.error(f"Database load error: {str(e)}", exc_info=True)
             return False
     
     def _initialize_llm(self) -> bool:
         """Initialize LLM from config (Ollama, Gemini, etc.)"""
         try:
             cfg = self.settings.llm
-            logger.info(f"Đang kết nối {cfg.provider}: {cfg.model}")
+            logger.info(f"Connecting {cfg.provider}: {cfg.model}")
             self.llm = get_llm()
             self.llm.invoke("test")
-            logger.info("✓ LLM sẵn sàng")
+            logger.info("✓ LLM ready")
             return True
         except Exception as e:
-            logger.error(f"Lỗi kết nối LLM: {str(e)}", exc_info=True)
+            logger.error(f"LLM connection error: {str(e)}", exc_info=True)
             cfg = self.settings.llm
             if cfg.provider == "ollama":
-                logger.info("Kiểm tra: ollama serve")
+                logger.info("Check: ollama serve")
             elif cfg.provider == "gemini":
-                logger.info("Kiểm tra: GOOGLE_API_KEY trong .env")
+                logger.info("Check: GOOGLE_API_KEY trong .env")
             return False
     
     def _create_chain(self):
@@ -111,14 +111,14 @@ class ChatBot:
         def format_docs(docs):
             """Format retrieved documents"""
             if not docs:
-                return "Không tìm thấy thông tin liên quan."
+                return "No relevant information found."
             
             parts = []
             for i, doc in enumerate(docs, 1):
                 filename = doc.metadata.get('filename', 'unknown')
                 page = doc.metadata.get('page', 'N/A')
                 parts.append(
-                    f"[Đoạn {i} - File: {filename}, Trang: {page}]\n"
+                    f"[Segment {i} - File: {filename}, Page: {page}]\n"
                     f"{doc.page_content}\n"
                 )
             
@@ -127,7 +127,7 @@ class ChatBot:
         def format_history():
             """Format conversation history"""
             if not self.settings.chat.history_enabled or not self.memory:
-                return "Không có lịch sử."
+                return "No history."
             return self.memory.get_history_string()
         
         # Get prompt
@@ -150,7 +150,7 @@ class ChatBot:
     def initialize(self) -> bool:
         """Initialize all components"""
         logger.info("=" * 70)
-        logger.info(f"KHỞI ĐỘNG {self.settings.app.name} v{self.settings.app.version}")
+        logger.info(f"STARTING {self.settings.app.name} v{self.settings.app.version}")
         logger.info(f"Environment: {self.settings.app.environment}")
         logger.info("=" * 70)
         
@@ -168,9 +168,9 @@ class ChatBot:
         # Create chain
         try:
             self._create_chain()
-            logger.info("✓ RAG Chain sẵn sàng")
+            logger.info("✓ RAG Chain ready")
         except Exception as e:
-            logger.error(f"Lỗi tạo chain: {str(e)}")
+            logger.error(f"Error creating chain: {str(e)}")
             return False
         
         # Initialize conversation memory
@@ -186,8 +186,8 @@ class ChatBot:
         # Validate query
         max_len = self.settings.chat.max_query_length
         if len(query) > max_len:
-            logger.warning(f"Query quá dài ({len(query)} > {max_len})")
-            return f" Câu hỏi quá dài. Vui lòng giới hạn dưới {max_len} ký tự."
+            logger.warning(f"Query too long ({len(query)} > {max_len})")
+            return f" Câu hỏi quá dài. Vui lòng giới hạn dưới {max_len} characters."
         
         try:
             # Start timing
@@ -199,7 +199,7 @@ class ChatBot:
             retrieval_time = time.time() - retrieval_start
             
             if not docs_and_scores:
-                return " Không tìm thấy thông tin liên quan trong tài liệu."
+                return " No relevant information found in the documents."
             
             docs = [doc for doc, score in docs_and_scores]
             scores = [score for doc, score in docs_and_scores]
@@ -250,7 +250,7 @@ class ChatBot:
             return response
             
         except Exception as e:
-            logger.error(f"Lỗi xử lý query: {str(e)}", exc_info=True)
+            logger.error(f"Error processing query: {str(e)}", exc_info=True)
             
             # Track failed query
             if self.settings.metrics.enabled:
@@ -265,26 +265,26 @@ class ChatBot:
                     error=str(e)
                 )
             
-            return " Đã có lỗi xảy ra khi xử lý câu hỏi."
+            return " An error occurred while processing the question."
     
     def print_welcome(self):
         """Print welcome message"""
         msgs = self.settings.chat.messages
         
         print("\n" + "=" * 70)
-        print(f"  {msgs.get('welcome', ' Chatbot sẵn sàng!')}")
+        print(f"  {msgs.get('welcome', ' Chatbot ready!')}")
         print("=" * 70)
-        print("\n HƯỚNG DẪN:")
-        print("  • Đặt câu hỏi về nội dung tài liệu")
-        print("  • Gõ 'exit' hoặc 'quit' để thoát")
-        print("  • Gõ 'clear' để xóa lịch sử hội thoại")
-        print("  • Gõ 'stats' để xem thống kê")
-        print("  • Gõ 'help' để xem hướng dẫn")
+        print("\n INSTRUCTIONS:")
+        print("  • Ask questions about the document content")
+        print("  • Type 'exit' or 'quit' to exit")
+        print("  • Type 'clear' to clear conversation history")
+        print("  • Type 'stats' to view statistics")
+        print("  • Type 'help' to view instructions")
         
         if self.memory:
             print(f"  • Conversation memory: Enabled (max {self.memory.max_history} exchanges)")
         
-        print("\n  CẤU HÌNH:")
+        print("\n  CONFIGURATION:")
         print(f"  • LLM: {self.settings.llm.model}")
         print(f"  • Retrieval: {self.settings.retrieval.search_type.upper()} (top-{self.settings.retrieval.k})")
         print(f"  • Documents in DB: {self.vectorstore._collection.count()}")
@@ -297,32 +297,32 @@ class ChatBot:
         while True:
             try:
                 # Get user input
-                user_input = input("\n Bạn: ").strip()
+                user_input = input("\n You: ").strip()
                 
                 if not user_input:
                     continue
                 
                 # Handle commands
                 if user_input.lower() in ['exit', 'quit', 'q']:
-                    print(f"\n{self.settings.chat.messages.get('exit', ' Tạm biệt!')}")
+                    print(f"\n{self.settings.chat.messages.get('exit', ' Goodbye!')}")
                     
                     # Save metrics
                     if self.settings.metrics.enabled:
                         metrics_tracker.save()
-                        print(" Metrics đã được lưu")
+                        print(" Metrics saved")
                     
                     break
                 
                 if user_input.lower() == 'clear':
                     if self.memory:
                         self.memory.clear()
-                        print(" Đã xóa lịch sử hội thoại")
+                        print(" Deleted conversation history")
                     continue
                 
                 if user_input.lower() == 'stats':
                     if self.settings.metrics.enabled:
                         summary = metrics_tracker.get_summary()
-                        print("\n THỐNG KÊ:")
+                        print("\n STATISTICS:")
                         for key, value in summary.items():
                             if isinstance(value, float):
                                 print(f"  • {key}: {value:.3f}")
@@ -341,23 +341,23 @@ class ChatBot:
                 if response:
                     print(response)
                 else:
-                    print("Không thể xử lý câu hỏi. Vui lòng thử lại.")
+                    print("Cannot process the question. Please try again.")
                 
             except KeyboardInterrupt:
-                print(f"\n\n{self.settings.chat.messages.get('exit', ' Tạm biệt!')}")
+                print(f"\n\n{self.settings.chat.messages.get('exit', ' Goodbye!')}")
                 if self.settings.metrics.enabled:
                     metrics_tracker.save()
                 break
             except Exception as e:
-                logger.error(f"Lỗi không mong muốn: {str(e)}", exc_info=True)
-                print(" Đã có lỗi xảy ra.")
+                logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+                print(" An error occurred.")
 
 def main():
     """Main entry point"""
     chatbot = ChatBot()
     
     if not chatbot.initialize():
-        logger.error("Khởi động thất bại")
+        logger.error("Failed to start")
         return 1
     
     chatbot.run()

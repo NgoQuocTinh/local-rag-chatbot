@@ -11,7 +11,7 @@ export default function Chat() {
       {/* Chat History */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white p-3.5 rounded-lg border border-gray-200 shadow-sm text-sm text-gray-700 leading-relaxed">
-          <p>Hi! I'm your local AI. I have access to your knowledge base.</p>
+          <p>Hi! I&apos;m your local AI. I have access to your knowledge base.</p>
           <p className="mt-2 text-gray-500 italic">How can I help you today?</p>
         </div>
         

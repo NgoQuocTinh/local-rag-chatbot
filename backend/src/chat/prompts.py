@@ -2,7 +2,7 @@
 """
 Prompt templates for chat
 
-Học: Centralized prompt management
+Learn: Centralized prompt management
 """
 
 from typing import Dict
@@ -25,15 +25,15 @@ def get_rag_prompt() -> ChatPromptTemplate:
     
     template = f"""{config.system_message}
 
-    QUY TẮC:
+    RULES:
     {rules_text}
 
-    NGỮ CẢNH TÀI LIỆU:
+    DOCUMENT CONTEXT:
     {{context}}
 
-    CÂU HỎI: {{question}}
+    QUESTION: {{question}}
 
-    TRẢ LỜI:"""
+    ANSWER:"""
     
     return ChatPromptTemplate.from_template(template)
 
@@ -54,23 +54,23 @@ def get_conversation_prompt() -> ChatPromptTemplate:
     
     template = f"""{config.system_message}
 
-    QUY TẮC:
+    RULES:
     {rules_text}
 
-    LỊCH SỬ HỘI THOẠI:
+    CONVERSATION HISTORY:
     {{history}}
 
-    NGỮ CẢNH TÀI LIỆU:
+    DOCUMENT CONTEXT:
     {{context}}
 
-    YÊU CẦU:
-    - Trả lời như một gia sư, giải thích rõ ràng, từng bước.
-    - Mỗi kết luận/định nghĩa chính phải dẫn nguồn: tên file, chương/mục, trang.
-    - Nếu suy luận thêm ngoài tài liệu, phải đánh dấu rõ là "suy luận".
+    REQUIREMENT:
+    - Answer like a tutor, explain clearly, step-by-step.
+    - Every main conclusion/definition must cite source: filename, chapter/section, page.
+    - If inferring beyond the document, must clearly mark as "inference".
 
-    CÂU HỎI MỚI: {{question}}
+    NEW QUESTION: {{question}}
 
-    TRẢ LỜI:"""
+    ANSWER:"""
     
     return ChatPromptTemplate.from_template(template)
 
@@ -78,18 +78,18 @@ def get_followup_prompt() -> ChatPromptTemplate:
     """
     Get prompt for follow-up questions
     
-    Học: Context-aware follow-up handling
+    Learn: Context-aware follow-up handling
     """
-    template = """Dựa trên cuộc hội thoại trước đó và câu hỏi mới, hãy trả lời một cách nhất quán.
+    template = """Based on the previous conversation and new question, please answer consistently.
 
-    LỊCH SỬ:
+    HISTORY:
     {history}
 
-    NGỮ CẢNH BỔ SUNG:
+    ADDITIONAL CONTEXT:
     {context}
 
-    CÂU HỎI TIẾP THEO: {question}
+    NEXT QUESTION: {question}
 
-    TRẢ LỜI (giữ tính nhất quán với câu trả lời trước):"""
+    ANSWER (keep consistency with previous answer):"""
     
     return ChatPromptTemplate.from_template(template)

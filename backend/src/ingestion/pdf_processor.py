@@ -64,7 +64,7 @@ class PDFProcessor:
         data_dir = Path(directory or self.settings.paths.data_dir)
         
         if not data_dir.exists():
-            logger.error(f"Directory không tồn tại: {data_dir}")
+            logger.error(f"Directory does not exist: {data_dir}")
             return []
         
         # Find PDFs
@@ -72,7 +72,7 @@ class PDFProcessor:
         for ext in self.settings.pdf.allowed_extensions:
             pdf_files.extend(data_dir.glob(f"*{ext}"))
         
-        logger.info(f"Tìm thấy {len(pdf_files)} file PDF trong {data_dir}")
+        logger.info(f"Found {len(pdf_files)} PDF files in {data_dir}")
         
         return sorted(pdf_files)
     
@@ -88,12 +88,12 @@ class PDFProcessor:
         """
         # Check existence
         if not filepath.exists():
-            logger.error(f"File không tồn tại: {filepath}")
+            logger.error(f"File does not exist: {filepath}")
             return False
         
         # Check extension
         if filepath.suffix.lower() not in [ext.lower() for ext in self.settings.pdf.allowed_extensions]:
-            logger.error(f"File không phải PDF: {filepath}")
+            logger.error(f"File is not a PDF: {filepath}")
             return False
         
         # Check size
@@ -101,10 +101,10 @@ class PDFProcessor:
         max_size = self.settings.pdf.max_file_size_mb
         
         if file_size_mb > max_size:
-            logger.error(f"File quá lớn: {filepath.name} ({file_size_mb:.2f}MB > {max_size}MB)")
+            logger.error(f"File too large: {filepath.name} ({file_size_mb:.2f}MB > {max_size}MB)")
             return False
         
-        logger.debug(f"✓ File hợp lệ: {filepath.name} ({file_size_mb:.2f}MB)")
+        logger.debug(f"✓ Valid file: {filepath.name} ({file_size_mb:.2f}MB)")
         return True
     
     def load_single_pdf(self, filepath: Path) -> Optional[List[Document]]:
@@ -118,13 +118,13 @@ class PDFProcessor:
             List of Document objects or None if failed
         """
         try:
-            logger.info(f"Đang đọc: {filepath.name}")
+            logger.info(f"Reading: {filepath.name}")
             
             loader = PyPDFLoader(str(filepath))
             documents = loader.load()
             
             if not documents:
-                logger.warning(f"PDF rỗng: {filepath.name}")
+                logger.warning(f"Empty PDF: {filepath.name}")
                 return None
             
             # Enrich metadata
@@ -135,11 +135,11 @@ class PDFProcessor:
                     'file_size_mb': filepath.stat().st_size / (1024 * 1024),
                 })
             
-            logger.info(f"✓ Đã đọc {len(documents)} trang từ {filepath.name}")
+            logger.info(f"✓ Read {len(documents)} pages from {filepath.name}")
             return documents
             
         except Exception as e:
-            logger.error(f"Lỗi khi đọc {filepath.name}: {str(e)}")
+            logger.error(f"Error reading {filepath.name}: {str(e)}")
             return None
     
     def load_multiple_pdfs(self, filepaths: List[Path]) -> List[Document]:
@@ -170,9 +170,9 @@ class PDFProcessor:
                 failed += 1
         
         logger.info(
-            f"Kết quả: {successful} files thành công, "
-            f"{failed} files thất bại, "
-            f"tổng {len(all_documents)} trang"
+            f"Result: {successful} successful files, "
+            f"{failed} failed files, "
+            f"total {len(all_documents)} pages"
         )
         
         return all_documents
@@ -188,23 +188,23 @@ class PDFProcessor:
             List of chunked Document objects
         """
         try:
-            logger.info(f"Đang chia nhỏ {len(documents)} documents...")
+            logger.info(f"Splitting {len(documents)} documents...")
             
             chunks = self.text_splitter.split_documents(documents)
             
             if not chunks:
-                logger.error("Không tạo được chunks")
+                logger.error("Failed to create chunks")
                 return []
             
             # Statistics
             lengths = [len(c.page_content) for c in chunks]
             logger.info(
-                f"✓ Đã tạo {len(chunks)} chunks\n"
-                f"  - Trung bình: {sum(lengths)/len(lengths):.0f} ký tự\n"
+                f"✓ Created {len(chunks)} chunks\n"
+                f"  - Average: {sum(lengths)/len(lengths):.0f} characters\n"
                 f"  - Min: {min(lengths)} | Max: {max(lengths)}"
             )
             
-            # Học: Add chunk metadata
+            # Learn: Add chunk metadata
             for i, chunk in enumerate(chunks):
                 chunk.metadata.update({
                     'chunk_id': i,
@@ -214,7 +214,7 @@ class PDFProcessor:
             return chunks
             
         except Exception as e:
-            logger.error(f"Lỗi khi split documents: {str(e)}")
+            logger.error(f"Error splitting documents: {str(e)}")
             return []
     
     def process_directory(self, directory: Optional[str] = None) -> List[Document]:
@@ -231,14 +231,14 @@ class PDFProcessor:
         pdf_files = self.find_pdf_files(directory)
         
         if not pdf_files:
-            logger.error("Không tìm thấy file PDF nào")
+            logger.error("No PDF files found")
             return []
         
         # Load PDFs
         documents = self.load_multiple_pdfs(pdf_files)
         
         if not documents:
-            logger.error("Không load được document nào")
+            logger.error("Failed to load any document")
             return []
         
         # Split into chunks

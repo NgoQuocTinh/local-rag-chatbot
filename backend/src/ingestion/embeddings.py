@@ -43,7 +43,7 @@ class EmbeddingManager:
         try:
             config = self.settings.embeddings
             
-            logger.info(f"Đang tải embedding model: {config.model_name}")
+            logger.info(f"Loading embedding model: {config.model_name}")
             
             self._embeddings = HuggingFaceEmbeddings(
                 model_name=config.model_name,
@@ -56,17 +56,17 @@ class EmbeddingManager:
                 }
             )
             
-            logger.info("✓ Embedding model đã sẵn sàng")
+            logger.info("✓ Embedding model ready")
             return self._embeddings
             
         except Exception as e:
-            logger.error(f"Lỗi khi tải embedding model: {str(e)}")
+            logger.error(f"Error loading embedding model: {str(e)}")
             raise
     
     def clear_cache(self):
         """Clear cached embeddings"""
         self._embeddings = None
-        logger.info("Đã xóa embedding cache")
+        logger.info("Cleared embedding cache")
 
 # Singleton instance
 embedding_manager = EmbeddingManager()

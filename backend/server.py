@@ -7,25 +7,25 @@ from src.api.notes import router as notes_router
 from src.api.graph import router as graph_router
 from src.api.ai import router as ai_router
 
-# Khởi tạo Settings
+# Initialize Settings
 settings = get_settings()
 
-# Khởi tạo ứng dụng FastAPI
+# Initialize FastAPI application
 app = FastAPI(
     title=f"{settings.app.name} API",
     version=settings.app.version,
     description="Knowledge Base & RAG Backend API"
 )
 
-# Thêm Routes quản lý Notes, Graph và AI
+# Add routes for managing Notes, Graph, and AI
 app.include_router(notes_router)
 app.include_router(graph_router)
 app.include_router(ai_router)
 
-# Cấu hình CORS để Frontend (Next.js) có thể gọi được API
+# Configure CORS so Frontend (Next.js) can call API
 origins = [
-    "http://localhost:3000",   # Mặc định Next.js
-    "http://localhost:5173",   # Mặc định Vite/SvelteKit
+    "http://localhost:3000",   # Default Next.js
+    "http://localhost:5173",   # Default Vite/SvelteKit
 ]
 
 app.add_middleware(
@@ -38,7 +38,7 @@ app.add_middleware(
 
 @app.get("/api/health", tags=["System"])
 def health_check():
-    """Kiểm tra trạng thái hệ thống"""
+    """Check system status"""
     return {
         "status": "healthy",
         "app_name": settings.app.name,
@@ -51,5 +51,5 @@ if __name__ == "__main__":
         "server:app",
         host="0.0.0.0",
         port=8000,
-        reload=True # Tự động restart khi sửa code (cho môi trường dev)
+        reload=True # Auto restart on code change (for dev environment)
     )

@@ -47,7 +47,7 @@ def _list_pdfs(data_dir: Path) -> List[Path]:
     files: List[Path] = []
     for ext in settings.pdf.allowed_extensions:
         for p in data_dir.glob(f"*{ext}"):
-            # Windows: .pdf và .PDF trùng file → tránh đếm 2 lần
+            # Windows: .pdf and .PDF are the same file -> avoid counting twice
             key = p.resolve()
             if key not in seen:
                 seen.add(key)
@@ -87,12 +87,12 @@ def _get_llm():
 
 def _format_docs(docs) -> str:
     if not docs:
-        return "Không tìm thấy thông tin liên quan."
+        return "No relevant information found."
     parts = []
     for i, doc in enumerate(docs, 1):
         filename = doc.metadata.get("filename", "unknown")
         page = doc.metadata.get("page", "N/A")
-        parts.append(f"[Đoạn {i} - File: {filename}, Trang: {page}]\n{doc.page_content}\n")
+        parts.append(f"[Segment {i} - File: {filename}, Page: {page}]\n{doc.page_content}\n")
     return "\n".join(parts)
 
 
@@ -112,7 +112,7 @@ def _run_ingestion(mode: str) -> Tuple[bool, str]:
     processor = PDFProcessor()
     chunks = processor.process_directory()
     if not chunks:
-        return False, "Không có documents/chunks để xử lý. Kiểm tra thư mục data_dir và file PDF."
+        return False, "No documents/chunks to process. Check data_dir directory and PDF files."
 
     embeddings = _get_embeddings()
 
@@ -120,7 +120,7 @@ def _run_ingestion(mode: str) -> Tuple[bool, str]:
         if mode == "overwrite":
             shutil.rmtree(db_path)
         elif mode != "append":
-            return False, f"Mode không hợp lệ: {mode}"
+            return False, f"Invalid mode: {mode}"
 
     if db_path.exists() and mode == "append":
         vectordb = Chroma(
@@ -130,7 +130,7 @@ def _run_ingestion(mode: str) -> Tuple[bool, str]:
         )
         vectordb.add_documents(chunks)
         count = vectordb._collection.count()
-        return True, f"Đã append dữ liệu. Tổng vectors: {count}"
+        return True, f"Appended data. Total vectors: {count}"
 
     vectordb = Chroma.from_documents(
         documents=chunks,
@@ -144,7 +144,7 @@ def _run_ingestion(mode: str) -> Tuple[bool, str]:
         },
     )
     count = vectordb._collection.count()
-    return True, f"Đã tạo database mới. Tổng vectors: {count}"
+    return True, f"Created new database. Total vectors: {count}"
 
 
 def main():
@@ -154,10 +154,10 @@ def main():
     settings = get_settings()
 
     st.title("Local RAG Chatbot")
-    st.caption("Upload PDF → Ingest vào ChromaDB → Chat kèm trích dẫn nguồn.")
+    st.caption("Upload PDF -> Ingest to ChromaDB -> Chat with source citations.")
 
     with st.sidebar:
-        st.subheader("Cấu hình đang dùng")
+        st.subheader("Current configuration")
         st.write(f"- **Data dir**: `{settings.paths.data_dir}`")
         st.write(f"- **DB dir**: `{settings.paths.db_dir}`")
         st.write(f"- **Embeddings**: `{settings.embeddings.model_name}` ({settings.embeddings.device})")
@@ -173,37 +173,37 @@ def main():
         st.write(f"- **LLM**: `{settings.llm.model}` @ `{settings.llm.ollama.base_url}`")
 
         st.divider()
-        if st.button("Xóa lịch sử chat", use_container_width=True):
+        if st.button("Clear chat history", use_container_width=True):
             mem = _get_memory()
             mem.clear()
             st.session_state.chat_messages = []
             st.rerun()
 
-    tab_docs, tab_ingest, tab_chat = st.tabs(["Tài liệu (PDF)", "Ingest", "Chat"])
+    tab_docs, tab_ingest, tab_chat = st.tabs(["Documents (PDF)", "Ingest", "Chat"])
 
     with tab_docs:
-        st.subheader("Quản lý PDF")
+        st.subheader("Manager PDF")
         data_dir = Path(settings.paths.data_dir)
 
         uploaded = st.file_uploader(
-            "Upload PDF vào data_dir",
+            "Upload PDF to data_dir",
             type=["pdf", "PDF"],
             accept_multiple_files=True,
         )
         if uploaded:
             saved = _save_uploaded_pdfs(uploaded, data_dir)
-            st.success(f"Đã lưu {len(saved)} file vào `{data_dir}`")
+            st.success(f"Saved {len(saved)} files to `{data_dir}`")
 
         files = _list_pdfs(data_dir)
         if not files:
-            st.info(f"Chưa có PDF trong `{data_dir}`")
+            st.info(f"No PDFs found in `{data_dir}`")
         else:
-            st.write(f"Tìm thấy **{len(files)}** file:")
+            st.write(f"Found **{len(files)}** files:")
             for p in files:
                 st.write(f"- `{p.name}` ({p.stat().st_size / (1024 * 1024):.2f} MB)")
 
     with tab_ingest:
-        st.subheader("Ingest vào ChromaDB")
+        st.subheader("Ingest to ChromaDB")
 
         db_dir = Path(settings.paths.db_dir)
         exists = db_dir.exists()
@@ -212,10 +212,10 @@ def main():
             st.write(f"- **DB path**: `{db_dir}`")
             st.write(f"- **DB exists**: `{exists}`")
         with col2:
-            mode = st.selectbox("Chế độ", ["overwrite", "append"], index=0 if exists else 0)
+            mode = st.selectbox("Mode", ["overwrite", "append"], index=0 if exists else 0)
 
-        if st.button("Chạy ingest", type="primary"):
-            with st.spinner("Đang ingest..."):
+        if st.button("Run ingest", type="primary"):
+            with st.spinner("Ingesting..."):
                 start = time.time()
                 ok, msg = _run_ingestion(mode)
                 elapsed = time.time() - start
@@ -232,19 +232,19 @@ def main():
 
         db_dir = Path(settings.paths.db_dir)
         if not db_dir.exists():
-            st.warning("Chưa có database. Hãy chạy Ingest trước.")
+            st.warning("No database found. Please run Ingest first.")
             return
 
         if "chat_messages" not in st.session_state:
             st.session_state.chat_messages = []
 
-        show_context = st.checkbox("Hiển thị ngữ cảnh đã retrieve (để kiểm chứng)", value=False)
+        show_context = st.checkbox("Show retrieved context (for verification)", value=False)
 
         for m in st.session_state.chat_messages:
             with st.chat_message(m["role"]):
                 st.markdown(m["content"])
 
-        question = st.chat_input("Nhập câu hỏi của bạn...")
+        question = st.chat_input("Enter your question...")
         if not question:
             return
 
@@ -254,7 +254,7 @@ def main():
         st.session_state.chat_messages.append({"role": "user", "content": question})
 
         with st.chat_message("assistant"):
-            with st.spinner("Đang trả lời..."):
+            with st.spinner("Answering..."):
                 start = time.time()
 
                 vectorstore = _get_vectorstore()
@@ -264,7 +264,7 @@ def main():
 
                 docs = retriever.retrieve(question)
                 context = _format_docs(docs)
-                history = mem.get_history_string() if settings.chat.history_enabled else "Không có lịch sử."
+                history = mem.get_history_string() if settings.chat.history_enabled else "No history."
 
                 messages = prompt.format_messages(context=context, history=history, question=question)
                 llm_result = llm.invoke(messages)
@@ -293,7 +293,7 @@ def main():
                 st.markdown(answer)
 
                 if show_context:
-                    with st.expander("Ngữ cảnh retrieve"):
+                    with st.expander("Retrieve context"):
                         st.text(context)
 
         st.session_state.chat_messages.append({"role": "assistant", "content": answer})

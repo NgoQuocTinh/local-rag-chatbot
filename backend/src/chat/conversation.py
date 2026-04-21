@@ -1,7 +1,7 @@
 """
 Conversation memory management
 
-Học: Stateful conversation in RAG
+Learn: Stateful conversation in RAG
 """
 
 from typing import List, Dict, Optional
@@ -19,7 +19,7 @@ class ConversationMemory:
     """
     Manage conversation history
     
-    Học: Sliding window memory (keep last N exchanges)
+    Learn: Sliding window memory (keep last N exchanges)
     """
     
     def __init__(self, max_history: Optional[int] = None):
@@ -60,11 +60,11 @@ class ConversationMemory:
             Formatted history string
         """
         if not self.messages:
-            return "Không có lịch sử hội thoại trước đó."
+            return "No previous conversation history."
         
         history_parts = []
         for msg in self.messages:
-            role_label = "Người dùng" if msg.role == 'user' else "Trợ lý"
+            role_label = "User" if msg.role == 'user' else "Assistant"
             history_parts.append(f"{role_label}: {msg.content}")
         
         return "\n".join(history_parts)

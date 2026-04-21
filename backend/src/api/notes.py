@@ -10,15 +10,15 @@ from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-# Tạo Router để gộp chung nhóm API về Ghi chú
+# Create Router to group Notes API endpoints
 router = APIRouter(prefix="/api/notes", tags=["Notes"])
 settings = get_settings()
 
-# Đảm bảo thư mục lưu trữ data luôn tồn tại
+# Ensure data storage directory always exists
 DATA_DIR = Path(settings.paths.data_dir).resolve()
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# ---- Khai báo Models (Kiểu dữ liệu nhận từ Client) ----
+# ---- Declare Models (Data types received from Client) ----
 class NoteCreate(BaseModel):
     title: str
     content: str
@@ -26,7 +26,7 @@ class NoteCreate(BaseModel):
 class NoteUpdate(BaseModel):
     content: str
 
-# ---- Hàm Encode / Decode / Sanitize Security ----
+# ---- Encode / Decode / Sanitize Security ----
 def encode_id(filename: str) -> str:
     """Encode filename to Base64 ID for URL safety (Note: This is obfuscation, not encryption)"""
     return base64.urlsafe_b64encode(filename.encode("utf-8")).decode("utf-8")
@@ -47,23 +47,23 @@ def get_safe_file_path(filename: str) -> Path:
     if not filename.endswith('.md'):
         filename += '.md'
     
-    # 1. Loại bỏ các ký tự chéo / và \ có thể dùng để nhảy thư mục
+    # 1. Remove slash characters / and \ that could be used for directory traversal
     clean_filename = filename.replace("/", "").replace("\\", "")
     
-    # 2. Xóa các tiền tố "../" có thể còn sót lại
+    # 2. Remove remaining "../" prefixes
     while ".." in clean_filename:
         clean_filename = clean_filename.replace("..", "")
     
-    # 3. Tính toán đường dẫn tuyệt đối (Absolute resolve)
+    # 3. Calculate absolute path (Absolute resolve)
     file_path = (DATA_DIR / clean_filename).resolve()
     
-    # 4. Chốt chặn cuối cùng: Đường dẫn thực tế bắt buộc phải nằm bên trong DATA_DIR
+    # 4. Final check: Actual path must be inside DATA_DIR
     try:
-        # Python 3.9+ hỗ trợ hàm này, nếu báo lỗi thì nó nằm ngoài phạm vi
+        # Python 3.9+ supports this function, if it errors it's out of scope
         if not file_path.is_relative_to(DATA_DIR.resolve()):
             raise ValueError()
     except (ValueError, AttributeError):
-        # Fallback bằng chuỗi nếu lỗi version
+        # Fallback using string if version error
         if not str(file_path).startswith(str(DATA_DIR.resolve())):
             logger.error(f"Directory Traversal blocked for path: {file_path}")
             raise HTTPException(status_code=403, detail="Unauthorized file access detected!")
@@ -74,18 +74,18 @@ def get_safe_file_path(filename: str) -> Path:
 
 @router.get("/")
 def get_all_notes():
-    """Lấy danh sách toàn bộ các file Markdown hiện có (Sidebar)"""
+    """Get a list of all existing Markdown files (Sidebar)"""
     notes = []
     try:
         for file_path in DATA_DIR.glob("**/*.md"):
-            # Encode tên file thành ID Base64
+            # Encode filename to Base64 ID
             safe_id = encode_id(file_path.name)
             notes.append({
                 "id": safe_id,
-                "title": file_path.stem,  # Tên file không có đuôi .md
+                "title": file_path.stem,  # Filename without .md extension
                 "updated_at": file_path.stat().st_mtime
             })
-        # Sắp xếp bài mới cập nhật lên đầu
+        # Sort recently updated notes to the top
         notes.sort(key=lambda x: x["updated_at"], reverse=True)
         return {"notes": notes}
     except Exception as e:
@@ -94,7 +94,7 @@ def get_all_notes():
 
 @router.get("/{note_id}")
 def get_note_content(note_id: str):
-    """Đọc nội dung của một bài viết thông qua Base64 ID"""
+    """Read the content of a note via Base64 ID"""
     filename = decode_id(note_id)
     if not filename.endswith('.md'):
         filename += '.md'
@@ -111,8 +111,8 @@ def get_note_content(note_id: str):
 
 @router.post("/")
 def create_note(note: NoteCreate):
-    """Tạo một file Markdown mới"""
-    # Làm gọn tên file (xóa khoảng trắng thừa) & kiểm tra bảo mật
+    """Create a new Markdown file"""
+    # Clean up filename (remove extra spaces) & check security
     safe_title = note.title.strip().replace("/", "_").replace("\\", "_")
     filename = f"{safe_title}.md"
     file_path = DATA_DIR / filename
@@ -129,7 +129,7 @@ def create_note(note: NoteCreate):
 
 @router.put("/{note_id}")
 def update_note(note_id: str, note: NoteUpdate):
-    """Cập nhật nội dung một bài viết đang có bằng ID"""
+    """Update the content of an existing note by ID"""
     filename = decode_id(note_id)
     if not filename.endswith('.md'):
         filename += '.md'
@@ -147,7 +147,7 @@ def update_note(note_id: str, note: NoteUpdate):
 
 @router.delete("/{note_id}")
 def delete_note(note_id: str):
-    """Xóa một bài viết thông qua ID"""
+    """Delete a note via ID"""
     filename = decode_id(note_id)
     if not filename.endswith('.md'):
         filename += '.md'
@@ -157,7 +157,7 @@ def delete_note(note_id: str):
         raise HTTPException(status_code=404, detail="Note not found")
         
     try:
-        file_path.unlink()  # Xóa file
+        file_path.unlink()  # Delete file
         return {"message": "Note deleted successfully"}
     except Exception as e:
         logger.error(f"Error deleting note {filename}: {e}")

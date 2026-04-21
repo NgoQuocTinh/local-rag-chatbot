@@ -77,7 +77,7 @@ class AdvancedRetriever:
             return docs
             
         except Exception as e:
-            logger.error(f"Lỗi khi retrieve: {str(e)}")
+            logger.error(f"Error retrieving: {str(e)}")
             return []
     
     def retrieve_with_scores(
@@ -110,7 +110,7 @@ class AdvancedRetriever:
             
             # Filter by threshold
             if score_threshold > 0:
-                # Học: ChromaDB uses distance (lower = more similar)
+                # Learn: ChromaDB uses distance (lower = more similar)
                 # Convert to similarity: similarity = 1 - distance
                 filtered = [
                     (doc, 1 - score)
@@ -129,7 +129,7 @@ class AdvancedRetriever:
             return docs_and_scores
             
         except Exception as e:
-            logger.error(f"Lỗi khi retrieve with scores: {str(e)}")
+            logger.error(f"Error retrieving with scores: {str(e)}")
             return []
     
     def get_unique_sources(self, documents: List[Document]) -> List[str]:
@@ -169,11 +169,11 @@ class AdvancedRetriever:
         if format_type == 'compact':
             # Compact: Just list unique files
             sources = self.get_unique_sources(documents)
-            return f"\n\n📚 Nguồn: {', '.join(sources)}"
+            return f"\n\n📚 Source: {', '.join(sources)}"
         
         elif format_type == 'detailed':
             # Detailed: File + page numbers
-            sources_info = "\n\n📚 Nguồn tham khảo:"
+            sources_info = "\n\n📚 References:"
             
             # Group by file
             file_pages: Dict[str, set] = {}

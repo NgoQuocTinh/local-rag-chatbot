@@ -2,9 +2,9 @@
 """
 Configuration Management System
 
-Học: 
-- Pydantic: Data validation và settings management
-- Singleton pattern: Chỉ load config 1 lần
+Learn: 
+- Pydantic: Data validation and settings management
+- Singleton pattern: Only load config once
 - Environment-based configuration
 """
 
@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==================== PYDANTIC MODELS ====================
-# Pydantic giúp validate config và có autocomplete
+# Pydantic helps validate config and provide autocomplete
 
 class AppConfig(BaseModel):
     """Application settings"""
@@ -45,7 +45,7 @@ class PathsConfig(BaseModel):
     
     @property
     def full_pdf_path(self) -> str:
-        """Học: Computed property"""
+        """Learn: Computed property"""
         return os.path. join(self.data_dir, self.pdf_file)
     
     @property
@@ -65,7 +65,7 @@ class ChunkingConfig(BaseModel):
     
     @validator('chunk_overlap')
     def validate_overlap(cls, v, values):
-        """Học: Cross-field validation"""
+        """Learn: Cross-field validation"""
         if 'chunk_size' in values and v >= values['chunk_size']:
             raise ValueError('chunk_overlap must be less than chunk_size')
         return v
@@ -211,7 +211,7 @@ class Settings(BaseModel):
     """
     Main settings class that combines all configs. 
     
-    Học:  Composition pattern
+    Learn:  Composition pattern
     """
     app: AppConfig
     paths: PathsConfig
@@ -226,7 +226,7 @@ class Settings(BaseModel):
     logging: LoggingConfig
     metrics: MetricsConfig
     class Config:
-        # Học: Pydantic config
+        # Learn: Pydantic config
         arbitrary_types_allowed = True
         validate_assignment = True
 
@@ -236,7 +236,7 @@ class ConfigLoader:
     """
     Singleton config loader. 
     
-    Học: Singleton pattern - Chỉ load config 1 lần
+    # Learn: Singleton pattern - Only load config once
     """
     _instance:  Optional[Settings] = None
     
@@ -279,7 +279,7 @@ class ConfigLoader:
         """
         Deep merge two dictionaries.
         
-        Học: Recursive dictionary merging
+        Learn: Recursive dictionary merging
         """
         result = base.copy()
         for key, value in override.items():
@@ -294,7 +294,7 @@ class ConfigLoader:
         """
         Apply environment variable overrides. 
         
-        Học: Environment variables có priority cao nhất
+        Learn: Environment variables have the highest priority
         """
         # Log level override
         if log_level := os.getenv('RAG_LOG_LEVEL'):
@@ -319,7 +319,7 @@ def get_settings() -> Settings:
     """
     Get application settings (singleton).
     
-    Học:  Facade pattern - Simple interface
+    Learn:  Facade pattern - Simple interface
     """
     return ConfigLoader.load()
 
