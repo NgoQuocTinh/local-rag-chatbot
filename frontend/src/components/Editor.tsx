@@ -41,6 +41,105 @@ export default function Editor(props: EditorProps) {
     isSyncing
   } = props;
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLTextAreaElement;
+    const value = target.value;
+    const cursorPosition = target.selectionStart;
+
+    // Get the content of the current line (from the previous \n to the cursor)
+    const lastNewline = value.lastIndexOf('\n', cursorPosition - 1);
+    const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
+    const currentLine = value.substring(lineStart, cursorPosition);
+
+    if (e.key === ' ') {
+      // Auto-format bullet list: '-' or '*' + Space -> '• '
+      if (currentLine === '-' || currentLine === '*') {
+        e.preventDefault();
+        const newValue = value.substring(0, lineStart) + '• ' + value.substring(cursorPosition);
+        handleContentChange(newValue);
+        
+        // Restore cursor position after render
+        setTimeout(() => {
+          target.selectionStart = target.selectionEnd = lineStart + 2;
+        }, 0);
+      }
+    } else if (e.key === 'Enter') {
+      const numberMatch = currentLine.match(/^(\s*)(\d+)\.\s/);
+      
+      // Handle Bullet Lists
+      if (currentLine.startsWith('• ')) {
+        // Exit list if the line only contains the bullet
+        if (currentLine.trim() === '•') {
+          e.preventDefault();
+          const newValue = value.substring(0, lineStart) + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = lineStart;
+          }, 0);
+        } else {
+          // Auto-continue bullet list
+          e.preventDefault();
+          const newValue = value.substring(0, cursorPosition) + '\n• ' + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = cursorPosition + 3;
+          }, 0);
+        }
+      } 
+      // Handle Numbered Lists
+      else if (numberMatch) {
+        const indent = numberMatch[1];
+        const num = parseInt(numberMatch[2], 10);
+        // Exit list if the line only contains the number
+        if (currentLine.trim() === `${num}.`) {
+          e.preventDefault();
+          const newValue = value.substring(0, lineStart) + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = lineStart;
+          }, 0);
+        } else {
+          // Auto-continue numbered list with incremented number
+          e.preventDefault();
+          const prefix = `\n${indent}${num + 1}. `;
+          const newValue = value.substring(0, cursorPosition) + prefix + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = cursorPosition + prefix.length;
+          }, 0);
+        }
+      }
+      // Handle Blockquotes
+      else if (currentLine.startsWith('> ')) {
+        // Exit blockquote if empty
+        if (currentLine.trim() === '>') {
+          e.preventDefault();
+          const newValue = value.substring(0, lineStart) + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = lineStart;
+          }, 0);
+        } else {
+          // Auto-continue blockquote
+          e.preventDefault();
+          const newValue = value.substring(0, cursorPosition) + '\n> ' + value.substring(cursorPosition);
+          handleContentChange(newValue);
+          setTimeout(() => {
+            target.selectionStart = target.selectionEnd = cursorPosition + 3;
+          }, 0);
+        }
+      }
+    } else if (e.key === 'Tab') {
+      // Insert two spaces instead of switching focus
+      e.preventDefault();
+      const newValue = value.substring(0, cursorPosition) + '  ' + value.substring(cursorPosition);
+      handleContentChange(newValue);
+      setTimeout(() => {
+        target.selectionStart = target.selectionEnd = cursorPosition + 2;
+      }, 0);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-gray-50/30">
       {/* Top Header of Main Area (Tabs Bar) */}
@@ -109,7 +208,7 @@ export default function Editor(props: EditorProps) {
           <div className="h-full flex flex-col mx-auto w-full max-w-4xl p-6 lg:p-10">
             <div className="flex items-center justify-between mb-6">
               <input
-                className="flex-1 text-3xl font-bold text-gray-900 tracking-tight px-1 outline-none focus:ring-2 focus:ring-blue-100 rounded-md transition-all bg-transparent disabled:opacity-75"
+                className="flex-1 text-[18px] font-bold text-gray-900 tracking-tight px-1 outline-none focus:ring-2 focus:ring-blue-100 rounded-md transition-all bg-transparent disabled:opacity-75"
                 value={openTabs.find(t => t.id === activeTabId)?.title || ''}
                 onChange={(e) => handleTitleChange(activeTabId, e.target.value)}
                 placeholder="Note Title"
@@ -134,9 +233,10 @@ export default function Editor(props: EditorProps) {
               <div className="text-gray-400 flex items-center justify-center flex-1">Loading content...</div>
             ) : (
               <textarea
-                className="flex-1 w-full h-full resize-none p-1 outline-none text-gray-700 leading-relaxed text-lg bg-transparent border-none"
+                className="flex-1 w-full h-full resize-none p-1 outline-none text-gray-700 leading-relaxed text-[14px] bg-transparent border-none"
                 value={tabContents[activeTabId] ?? ''}
                 onChange={(e) => handleContentChange(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Start typing your note here..."
               />
             )}
