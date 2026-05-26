@@ -42,6 +42,8 @@ export default function Editor(props: EditorProps) {
   } = props;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // ... (previous handleKeyDown code)
+
     const target = e.target as HTMLTextAreaElement;
     const value = target.value;
     const cursorPosition = target.selectionStart;

@@ -57,10 +57,49 @@ def health_check():
     }
 
 # --- DISABLED PRELOAD FOR RENDER DEPLOYMENT ---
-# @app.on_event("startup")
-# async def startup_event():
-#     """Preload AI models into RAM/VRAM (Warm-up) to reduce latency on first request."""
-#     ...
+@app.on_event("startup")
+async def startup_event():
+    """Preload AI models into RAM/VRAM (Warm-up) to reduce latency on first request.
+
+    This runs only when either:
+    - settings.app.environment == 'development', OR
+    - environment variable FORCE_PRELOAD is set to true (1/true/yes)
+
+    We avoid preloading on constrained cloud hosts (e.g., Render) by default.
+    """
+    try:
+        settings = get_settings()
+        env = settings.app.environment
+        force = os.getenv("FORCE_PRELOAD", "false").lower() in ("1", "true", "yes")
+
+        should_preload = force or (env == "development")
+
+        if not should_preload:
+            print(f"Skipping model preload (env={env}, FORCE_PRELOAD={force})")
+            return
+
+        print("Preloading embedding model and LLM (this may take a while)...")
+        # Import here to avoid importing heavy ML libs at module import time
+        from src.ingestion.embeddings import embedding_manager
+        from src.llm.llm_factory import get_llm
+
+        # Preload embeddings
+        try:
+            embedding_manager.get_embeddings()
+            print("Embedding model preloaded")
+        except Exception as e:
+            print(f"Warning: failed to preload embeddings: {e}")
+
+        # Preload LLM
+        try:
+            get_llm()
+            print("✓ LLM preloaded")
+        except Exception as e:
+            print(f"Warning: failed to preload LLM: {e}")
+
+        print("Model preload complete")
+    except Exception as e:
+        print(f"Startup preload encountered an unexpected error: {e}")
 
 import os
 if __name__ == "__main__":

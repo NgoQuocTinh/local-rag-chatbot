@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start:desktop": "node ./scripts/launch-backend.js & next dev",
+    "build:desktop": "npm run build && echo 'Run tools/build-backend.ps1 to build backend exe and then npx tauri build'"
   },
   "dependencies": {
     "autoprefixer": "^10.5.0",
