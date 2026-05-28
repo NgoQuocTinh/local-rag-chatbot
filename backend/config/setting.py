@@ -241,12 +241,16 @@ class ConfigLoader:
     _instance:  Optional[Settings] = None
     
     @classmethod
-    def load(cls, config_path: str = "config/config.yaml") -> Settings:
+    def load(cls, config_path: str = None) -> Settings:
         """
         Load configuration from YAML file with environment overrides.
         """
         if cls._instance is not None:
             return cls._instance
+        
+        if config_path is None:
+            # Luôn tìm file config.yaml cùng thư mục với setting.py bất kể chạy từ đâu
+            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.yaml")
         
         # Read YAML
         config_file = Path(config_path)
